@@ -15,9 +15,13 @@ public class ScalingMobsConfig
     public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
     private static final ScalingMobsConfig INSTANCE = new ScalingMobsConfig();
 
-    private static final ForgeConfigSpec.DoubleValue mobScaleRate;
-    private static final ForgeConfigSpec.DoubleValue mobStatsBase;
-    private static final ForgeConfigSpec.DoubleValue maxScaling;
+    private static final ForgeConfigSpec.DoubleValue mobHealthRate;
+    private static final ForgeConfigSpec.DoubleValue mobHealthBase;
+    private static final ForgeConfigSpec.DoubleValue maxHealth;
+
+    private static final ForgeConfigSpec.DoubleValue mobDamageRate;
+    private static final ForgeConfigSpec.DoubleValue mobDamageBase;
+    private static final ForgeConfigSpec.DoubleValue maxDamage;
 
     private static final ForgeConfigSpec.DoubleValue mobPiercingRate;
     private static final ForgeConfigSpec.DoubleValue mobPiercingBase;
@@ -30,17 +34,27 @@ public class ScalingMobsConfig
     static
     {
         exponential = BUILDER
-                .comment("If true, mob stats will increase exponentialally")
+                .comment("If true, mob stats will increase exponentially")
                 .define("exponential", false);
 
-        mobScaleRate = BUILDER
-                .comment("The percent amount that hostile mobs' stats increase per day")
+        mobHealthRate = BUILDER
+                .comment("The percent amount that hostile mobs' damage increase per day")
                 .defineInRange("mobScaleRate", 0.03, 0.0, Double.MAX_VALUE);
-        mobStatsBase = BUILDER
-                .comment("The percent amount that is added to hostile mobs' base stats")
+        mobHealthBase = BUILDER
+                .comment("The percent amount that is added to hostile mobs' base damage")
                 .defineInRange("mobStatsBase", 1.0, 0.0, Double.MAX_VALUE);
-        maxScaling = BUILDER
-                .comment("The maximum amount that hostile mobs' stats can scale to")
+        maxHealth = BUILDER
+                .comment("The maximum amount that hostile mobs' damage can scale to")
+                .defineInRange("maxScaling", Double.MAX_VALUE, 0.0, Double.MAX_VALUE);
+
+        mobDamageRate = BUILDER
+                .comment("The percent amount that hostile mobs' damage increase per day")
+                .defineInRange("mobScaleRate", 0.03, 0.0, Double.MAX_VALUE);
+        mobDamageBase = BUILDER
+                .comment("The percent amount that is added to hostile mobs' base damage")
+                .defineInRange("mobStatsBase", 1.0, 0.0, Double.MAX_VALUE);
+        maxDamage = BUILDER
+                .comment("The maximum amount that hostile mobs' damage can scale to")
                 .defineInRange("maxScaling", Double.MAX_VALUE, 0.0, Double.MAX_VALUE);
 
         mobPiercingRate = BUILDER
@@ -65,17 +79,29 @@ public class ScalingMobsConfig
     {
         return exponential.get();
     }
-    public double getMobScaleRate()
+    public double getMobHealthRate()
     {
-        return mobScaleRate.get();
+        return mobHealthRate.get();
     }
-    public double getMobStatsBase()
+    public double getMobHealthBase()
     {
-        return mobStatsBase.get();
+        return mobHealthBase.get();
     }
-    public double getMaxScaling()
+    public double getMobHealthMax()
     {
-        return maxScaling.get();
+        return maxHealth.get();
+    }
+    public double getMobDamageRate()
+    {
+        return mobDamageRate.get();
+    }
+    public double getMobDamageBase()
+    {
+        return mobDamageBase.get();
+    }
+    public double getMobDamageMax()
+    {
+        return maxDamage.get();
     }
     public double getPiercingRate()
     {
@@ -99,17 +125,29 @@ public class ScalingMobsConfig
     {
         exponential.set(log);
     }
-    public void setMobScaleRate(double rate)
+    public void setMobHealthRate(double rate)
     {
-        mobScaleRate.set(rate);
+        mobHealthRate.set(rate);
     }
-    public void setMobStatsBase(double base)
+    public void setMobHealthBase(double base)
     {
-        mobStatsBase.set(base);
+        mobHealthBase.set(base);
     }
-    public void setMaxScaling(double max)
+    public void setMobHealthMax(double max)
     {
-        maxScaling.set(max);
+        maxHealth.set(max);
+    }
+    public void setMobDamageRate(double rate)
+    {
+        mobDamageRate.set(rate);
+    }
+    public void setMobDamageBase(double base)
+    {
+        mobDamageBase.set(base);
+    }
+    public void setMobDamageMax(double max)
+    {
+        maxDamage.set(max);
     }
     public void setPiercingRate(double rate)
     {

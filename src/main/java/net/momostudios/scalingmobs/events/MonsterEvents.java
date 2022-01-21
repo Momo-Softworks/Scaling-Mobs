@@ -27,21 +27,23 @@ public class MonsterEvents
 
             if (damage != null && maxHealth != null)
             {
-                double scaleRate = ScalingMobsConfig.getInstance().getMobScaleRate();
-                double baseStats = ScalingMobsConfig.getInstance().getMobStatsBase();
+                double healthRate = ScalingMobsConfig.getInstance().getMobHealthRate();
+                double healthMax = ScalingMobsConfig.getInstance().getMobHealthMax();
+                double damageRate = ScalingMobsConfig.getInstance().getMobDamageRate();
+                double damageMax = ScalingMobsConfig.getInstance().getMobDamageMax();
+                double baseStats = ScalingMobsConfig.getInstance().getMobHealthBase();
 
                 if (ScalingMobsConfig.getInstance().areStatsExponential())
                 {
-                    maxHealth.setBaseValue((maxHealth.getBaseValue() * baseStats) * Math.pow(1 + scaleRate, currentDay));
-                    mob.setHealth(mob.getMaxHealth());
-                    damage.setBaseValue((damage.getBaseValue() * baseStats) * Math.pow(1 + scaleRate, currentDay));
+                    maxHealth.setBaseValue(Math.min(healthMax, (maxHealth.getBaseValue() * baseStats) * Math.pow(1 + healthRate, currentDay)));
+                    damage.setBaseValue(Math.min(damageMax, (damage.getBaseValue() * baseStats) * Math.pow(1 + damageRate, currentDay)));
                 }
                 else
                 {
-                    maxHealth.setBaseValue((maxHealth.getBaseValue() * baseStats) * (1 + (currentDay * scaleRate)));
-                    mob.setHealth(mob.getMaxHealth());
-                    damage.setBaseValue((damage.getBaseValue() * baseStats) * (1 + (currentDay * scaleRate)));
+                    maxHealth.setBaseValue(Math.min(healthMax, (maxHealth.getBaseValue() * baseStats) * (1 + (currentDay * healthRate))));
+                    damage.setBaseValue(Math.min(damageMax, (damage.getBaseValue() * baseStats) * (1 + (currentDay * damageRate))));
                 }
+                mob.setHealth(mob.getMaxHealth());
             }
         }
     }

@@ -1,7 +1,6 @@
 package net.momostudios.scalingmobs.command.impl;
 
 import com.mojang.brigadier.Command;
-import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -24,29 +23,55 @@ public class ScalingMobsCommand extends BaseCommand
     public LiteralArgumentBuilder<CommandSource> setExecution()
     {
         return builder
-                .then(Commands.literal("scaling")
+                .then(Commands.literal("health")
                         .then(Commands.literal("rate")
                                 .then(Commands.literal("get")
-                                        .executes(source -> getStatsRate(source.getSource()))
+                                        .executes(source -> getHealthRate(source.getSource()))
                                 )
                                 .then(Commands.argument("amount", DoubleArgumentType.doubleArg(0.0, Double.MAX_VALUE))
-                                        .executes(source -> setMobRate(source.getSource(), DoubleArgumentType.getDouble(source, "amount")))
+                                        .executes(source -> setHealthRate(source.getSource(), DoubleArgumentType.getDouble(source, "amount")))
                                 )
                         )
                         .then(Commands.literal("base")
                                 .then(Commands.literal("get")
-                                        .executes(source -> getStatsBase(source.getSource()))
+                                        .executes(source -> getHealthBase(source.getSource()))
                                 )
                                 .then(Commands.argument("amount", DoubleArgumentType.doubleArg(0.0, Double.MAX_VALUE))
-                                        .executes(source -> setMobBase(source.getSource(), DoubleArgumentType.getDouble(source, "amount")))
+                                        .executes(source -> setHealthBase(source.getSource(), DoubleArgumentType.getDouble(source, "amount")))
                                 )
                         )
                         .then(Commands.literal("max")
                                 .then(Commands.literal("get")
-                                        .executes(source -> getStatsMax(source.getSource()))
+                                        .executes(source -> getHealthMax(source.getSource()))
                                 )
                                 .then(Commands.argument("amount", DoubleArgumentType.doubleArg(0.0, Double.MAX_VALUE))
-                                        .executes(source -> setMaxStats(source.getSource(), DoubleArgumentType.getDouble(source, "amount")))
+                                        .executes(source -> setHealthMax(source.getSource(), DoubleArgumentType.getDouble(source, "amount")))
+                                )
+                        )
+                )
+                .then(Commands.literal("damage")
+                        .then(Commands.literal("rate")
+                                .then(Commands.literal("get")
+                                        .executes(source -> getDamageRate(source.getSource()))
+                                )
+                                .then(Commands.argument("amount", DoubleArgumentType.doubleArg(0.0, Double.MAX_VALUE))
+                                        .executes(source -> setDamageRate(source.getSource(), DoubleArgumentType.getDouble(source, "amount")))
+                                )
+                        )
+                        .then(Commands.literal("base")
+                                .then(Commands.literal("get")
+                                        .executes(source -> getDamageBase(source.getSource()))
+                                )
+                                .then(Commands.argument("amount", DoubleArgumentType.doubleArg(0.0, Double.MAX_VALUE))
+                                        .executes(source -> setDamageBase(source.getSource(), DoubleArgumentType.getDouble(source, "amount")))
+                                )
+                        )
+                        .then(Commands.literal("max")
+                                .then(Commands.literal("get")
+                                        .executes(source -> getDamageMax(source.getSource()))
+                                )
+                                .then(Commands.argument("amount", DoubleArgumentType.doubleArg(0.0, Double.MAX_VALUE))
+                                        .executes(source -> setDamageMax(source.getSource(), DoubleArgumentType.getDouble(source, "amount")))
                                 )
                         )
                 )
@@ -101,9 +126,9 @@ public class ScalingMobsCommand extends BaseCommand
     /**
      * Set Commands
      */
-    static int setMobRate(CommandSource source, double rate) throws CommandSyntaxException
+    static int setHealthRate(CommandSource source, double rate) throws CommandSyntaxException
     {
-        ScalingMobsConfig.getInstance().setMobScaleRate(rate);
+        ScalingMobsConfig.getInstance().setMobHealthRate(rate);
 
         String yellow = TextFormatting.YELLOW.toString();
         String white = TextFormatting.WHITE.toString();
@@ -112,8 +137,8 @@ public class ScalingMobsCommand extends BaseCommand
 
         // print changes to sender
         source.asPlayer().sendStatusMessage(new StringTextComponent(
-                yellow + "Set the rate of mob stat scaling to " +
-                white + "+" + ScalingMobsConfig.getInstance().getMobScaleRate() * 100 + "%" + yellow + " per day"), false);
+                yellow + "Set the rate of mob health scaling to " +
+                white + "+" + ScalingMobsConfig.getInstance().getMobHealthRate() * 100 + "%" + yellow + " per day"), false);
 
         // print to all players
         for (PlayerEntity player : source.asPlayer().world.getPlayers())
@@ -122,16 +147,16 @@ public class ScalingMobsCommand extends BaseCommand
             {
                 player.sendStatusMessage(new StringTextComponent(
                         gray + source.asPlayer().getName().getString() + ": " + dgray +
-                        "Set the rate of mob stat scaling to " + gray + ScalingMobsConfig.getInstance().getMobScaleRate() * 100 + "%"), false);
+                        "Set the rate of mob health scaling to " + gray + ScalingMobsConfig.getInstance().getMobHealthRate() * 100 + "%"), false);
             }
         }
 
         return Command.SINGLE_SUCCESS;
     }
 
-    static int setMobBase(CommandSource source, double base) throws CommandSyntaxException
+    static int setHealthBase(CommandSource source, double base) throws CommandSyntaxException
     {
-        ScalingMobsConfig.getInstance().setMobStatsBase(base);
+        ScalingMobsConfig.getInstance().setMobHealthBase(base);
 
         String yellow = TextFormatting.YELLOW.toString();
         String white = TextFormatting.WHITE.toString();
@@ -140,8 +165,8 @@ public class ScalingMobsCommand extends BaseCommand
 
         // print changes to sender
         source.asPlayer().sendStatusMessage(new StringTextComponent(
-                yellow + "Set the base stats of all mobs to " +
-                white + ScalingMobsConfig.getInstance().getMobStatsBase() * 100 + "%" + yellow + " of their original values"), false);
+                yellow + "Set the base health of all mobs to " +
+                white + ScalingMobsConfig.getInstance().getMobHealthBase() * 100 + "%" + yellow + " of their original values"), false);
 
         // print to all players
         for (PlayerEntity player : source.asPlayer().world.getPlayers())
@@ -150,20 +175,110 @@ public class ScalingMobsCommand extends BaseCommand
             {
                 player.sendStatusMessage(new StringTextComponent(
                         gray + source.asPlayer().getName().getString() + ": " + dgray +
-                        "Set the base stats of all mobs to " + gray + ScalingMobsConfig.getInstance().getMobStatsBase() * 100 + "%" + dgray + " of their original values"), false);
+                        "Set the base health of all mobs to " + gray + ScalingMobsConfig.getInstance().getMobHealthBase() * 100 + "%" + dgray + " of their original values"), false);
             }
         }
 
         return Command.SINGLE_SUCCESS;
     }
 
-    static int setMaxStats(CommandSource source, double max) throws CommandSyntaxException
+    static int setHealthMax(CommandSource source, double max) throws CommandSyntaxException
     {
-        ScalingMobsConfig.getInstance().setMaxScaling(max);
+        ScalingMobsConfig.getInstance().setMobHealthMax(max);
 
         source.asPlayer().sendStatusMessage(new StringTextComponent(
-                TextFormatting.YELLOW + "Set the maximum stats of all mobs to " +
-                TextFormatting.WHITE + ScalingMobsConfig.getInstance().getMaxScaling() * 100 + "%"), false);
+                TextFormatting.YELLOW + "Set the maximum health of all mobs to " +
+                TextFormatting.WHITE + ScalingMobsConfig.getInstance().getMobHealthMax() * 100 + "%"), false);
+
+        for (PlayerEntity player : source.asPlayer().world.getPlayers())
+        {
+            if (player != source.asPlayer())
+            {
+                player.sendStatusMessage(new StringTextComponent(
+                        TextFormatting.GRAY + source.asPlayer().getName().getString() + ": " +
+                        TextFormatting.DARK_GRAY + "Set the maximum health of all mobs to " +
+                        TextFormatting.GRAY + ScalingMobsConfig.getInstance().getMobHealthMax() * 100 + "%"), false);
+            }
+        }
+
+        return Command.SINGLE_SUCCESS;
+    }
+
+    static int setDamageRate(CommandSource source, double rate) throws CommandSyntaxException
+    {
+        ScalingMobsConfig.getInstance().setMobDamageRate(rate);
+
+        String yellow = TextFormatting.YELLOW.toString();
+        String white = TextFormatting.WHITE.toString();
+        String dgray = TextFormatting.DARK_GRAY.toString();
+        String gray = TextFormatting.GRAY.toString();
+
+        // print changes to sender
+        source.asPlayer().sendStatusMessage(new StringTextComponent(
+                yellow + "Set the rate of mob damage scaling to " +
+                white + "+" + ScalingMobsConfig.getInstance().getMobDamageRate() * 100 + "%" + yellow + " per day"), false);
+
+        // print to all players
+        for (PlayerEntity player : source.asPlayer().world.getPlayers())
+        {
+            if (player != source.asPlayer())
+            {
+                player.sendStatusMessage(new StringTextComponent(
+                        gray + source.asPlayer().getName().getString() + ": " + dgray +
+                        "Set the rate of mob damage scaling to " + gray + ScalingMobsConfig.getInstance().getMobDamageRate() * 100 + "%"), false);
+            }
+        }
+
+        return Command.SINGLE_SUCCESS;
+    }
+
+    static int setDamageBase(CommandSource source, double base) throws CommandSyntaxException
+    {
+        ScalingMobsConfig.getInstance().setMobDamageBase(base);
+
+        String yellow = TextFormatting.YELLOW.toString();
+        String white = TextFormatting.WHITE.toString();
+        String dgray = TextFormatting.DARK_GRAY.toString();
+        String gray = TextFormatting.GRAY.toString();
+
+        // print changes to sender
+        source.asPlayer().sendStatusMessage(new StringTextComponent(
+                yellow + "Set the base damage of all mobs to " +
+                white + ScalingMobsConfig.getInstance().getMobDamageBase() * 100 + "%" + yellow + " of their original values"), false);
+
+        // print to all players
+        for (PlayerEntity player : source.asPlayer().world.getPlayers())
+        {
+            if (player != source.asPlayer())
+            {
+                player.sendStatusMessage(new StringTextComponent(
+                        gray + source.asPlayer().getName().getString() + ": " + dgray +
+                        "Set the base damage of all mobs to " + gray + ScalingMobsConfig.getInstance().getMobDamageBase() * 100 + "%" + dgray + " of their original values"), false);
+            }
+        }
+
+        return Command.SINGLE_SUCCESS;
+    }
+
+    static int setDamageMax(CommandSource source, double max) throws CommandSyntaxException
+    {
+        ScalingMobsConfig.getInstance().setMobDamageMax(max);
+
+        source.asPlayer().sendStatusMessage(new StringTextComponent(
+                TextFormatting.YELLOW + "Set the maximum damage of all mobs to " +
+                TextFormatting.WHITE + ScalingMobsConfig.getInstance().getMobDamageMax() * 100 + "%"), false);
+
+        // print to all players
+        for (PlayerEntity player : source.asPlayer().world.getPlayers())
+        {
+            if (player != source.asPlayer())
+            {
+                player.sendStatusMessage(new StringTextComponent(
+                        TextFormatting.GRAY + source.asPlayer().getName().getString() + ": " +
+                        TextFormatting.DARK_GRAY + "Set the maximum damage of all mobs to " +
+                        TextFormatting.WHITE + ScalingMobsConfig.getInstance().getMobDamageMax() * 100 + "%"), false);
+            }
+        }
 
         return Command.SINGLE_SUCCESS;
     }
@@ -312,35 +427,68 @@ public class ScalingMobsCommand extends BaseCommand
     /**
      * Get Commands
      */
-    static int getStatsRate(CommandSource source) throws CommandSyntaxException
+    static int getHealthRate(CommandSource source) throws CommandSyntaxException
     {
         String yellow = TextFormatting.YELLOW.toString();
         String white = TextFormatting.WHITE.toString();
 
-        source.asPlayer().sendStatusMessage(new StringTextComponent(yellow + "The rate of mob stat scaling is currently " +
-                white + "+" + ScalingMobsConfig.getInstance().getMobScaleRate() * 100 + "%" + yellow + " per day"), false);
+        source.asPlayer().sendStatusMessage(new StringTextComponent(yellow + "The rate of mob health scaling is currently " +
+                white + "+" + ScalingMobsConfig.getInstance().getMobHealthRate() * 100 + "%" + yellow + " per day"), false);
 
         return Command.SINGLE_SUCCESS;
     }
 
-    static int getStatsBase(CommandSource source) throws CommandSyntaxException
+    static int getHealthBase(CommandSource source) throws CommandSyntaxException
     {
         String yellow = TextFormatting.YELLOW.toString();
         String white = TextFormatting.WHITE.toString();
 
-        source.asPlayer().sendStatusMessage(new StringTextComponent(yellow + "The base stats for all mobs is currently " +
-                white + ScalingMobsConfig.getInstance().getMobStatsBase() * 100 + "%" + yellow + " of their original values"), false);
+        source.asPlayer().sendStatusMessage(new StringTextComponent(yellow + "The base health for all mobs is currently " +
+                white + ScalingMobsConfig.getInstance().getMobHealthBase() * 100 + "%" + yellow + " of their original values"), false);
 
         return Command.SINGLE_SUCCESS;
     }
 
-    static int getStatsMax(CommandSource source) throws CommandSyntaxException
+    static int getHealthMax(CommandSource source) throws CommandSyntaxException
     {
         String yellow = TextFormatting.YELLOW.toString();
         String white = TextFormatting.WHITE.toString();
 
-        source.asPlayer().sendStatusMessage(new StringTextComponent(yellow + "The maximum stats for all mobs is currently " +
-                white + ScalingMobsConfig.getInstance().getMaxScaling() * 100 + "%" + yellow + " of their original values"), false);
+        source.asPlayer().sendStatusMessage(new StringTextComponent(yellow + "The maximum health for all mobs is currently " +
+                white + ScalingMobsConfig.getInstance().getMobHealthMax() * 100 + "%" + yellow + " of their original values"), false);
+
+        return Command.SINGLE_SUCCESS;
+    }
+
+    static int getDamageRate(CommandSource source) throws CommandSyntaxException
+    {
+        String yellow = TextFormatting.YELLOW.toString();
+        String white = TextFormatting.WHITE.toString();
+
+        source.asPlayer().sendStatusMessage(new StringTextComponent(yellow + "The rate of mob damage scaling is currently " +
+                white + "+" + ScalingMobsConfig.getInstance().getMobDamageRate() * 100 + "%" + yellow + " per day"), false);
+
+        return Command.SINGLE_SUCCESS;
+    }
+
+    static int getDamageBase(CommandSource source) throws CommandSyntaxException
+    {
+        String yellow = TextFormatting.YELLOW.toString();
+        String white = TextFormatting.WHITE.toString();
+
+        source.asPlayer().sendStatusMessage(new StringTextComponent(yellow + "The base damage for all mobs is currently " +
+                white + ScalingMobsConfig.getInstance().getMobDamageBase() * 100 + "%" + yellow + " of their original values"), false);
+
+        return Command.SINGLE_SUCCESS;
+    }
+
+    static int getDamageMax(CommandSource source) throws CommandSyntaxException
+    {
+        String yellow = TextFormatting.YELLOW.toString();
+        String white = TextFormatting.WHITE.toString();
+
+        source.asPlayer().sendStatusMessage(new StringTextComponent(yellow + "The maximum damage for all mobs is currently " +
+                white + ScalingMobsConfig.getInstance().getMobDamageMax() * 100 + "%" + yellow + " of their original values"), false);
 
         return Command.SINGLE_SUCCESS;
     }
