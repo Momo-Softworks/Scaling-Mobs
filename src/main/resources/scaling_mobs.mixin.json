@@ -7,7 +7,10 @@
   },
   "refmap": "scaling_mobs.mixin-refmap.json",
   "mixins": [
-    "MixinMobBurning"
+    "MixinInventoryChanged",
+    "MixinMobBurning",
+    "MixinMobTargeting",
+    "MixinMobTargeting$Sensor"
   ],
   "client": [
   ]

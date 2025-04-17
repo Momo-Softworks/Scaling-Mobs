@@ -4,15 +4,14 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.momosoftworks.scalingmobs.events.MonsterEvents;
-import net.minecraft.ChatFormatting;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.Commands;
 import com.momosoftworks.scalingmobs.command.BaseCommand;
 import com.momosoftworks.scalingmobs.config.ScalingMobsConfig;
+import com.momosoftworks.scalingmobs.data.save_data.LevelScalingData;
+import com.momosoftworks.scalingmobs.events.MonsterEvents;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.common.ForgeConfigSpec;
 
 import java.text.DecimalFormat;
 
@@ -29,104 +28,104 @@ public class ScalingMobsCommand extends BaseCommand
                 .then(Commands.literal("health")
                         .then(Commands.literal("rate")
                                 .then(Commands.argument("set", DoubleArgumentType.doubleArg(0.0, Double.MAX_VALUE)).requires(source -> source.hasPermission(2))
-                                        .executes(source -> setHealthRate(source.getSource(), DoubleArgumentType.getDouble(source, "amount")))
+                                        .executes(source -> setRateConfig(source.getSource(), ScalingMobsConfig.MOB_HEALTH_RATE, "health", DoubleArgumentType.getDouble(source, "amount")))
                                 )
                                 .then(Commands.literal("get")
-                                        .executes(source -> getHealthRate(source.getSource()))
+                                        .executes(source -> getRateConfig(source.getSource(), ScalingMobsConfig.MOB_HEALTH_RATE, "health"))
                                 )
                         )
                         .then(Commands.literal("base")
                                 .then(Commands.argument("set", DoubleArgumentType.doubleArg(0.0, Double.MAX_VALUE)).requires(source -> source.hasPermission(2))
-                                        .executes(source -> setHealthBase(source.getSource(), DoubleArgumentType.getDouble(source, "amount")))
+                                        .executes(source -> setBaseConfig(source.getSource(), ScalingMobsConfig.MOB_HEALTH_BASE, "health", DoubleArgumentType.getDouble(source, "amount")))
                                 )
                                 .then(Commands.literal("get")
-                                        .executes(source -> getHealthBase(source.getSource()))
+                                        .executes(source -> getBaseConfig(source.getSource(), ScalingMobsConfig.MOB_HEALTH_BASE, "health"))
                                 )
                         )
                         .then(Commands.literal("max")
                                 .then(Commands.argument("set", DoubleArgumentType.doubleArg(0.0, Double.MAX_VALUE)).requires(source -> source.hasPermission(2))
-                                        .executes(source -> setHealthMax(source.getSource(), DoubleArgumentType.getDouble(source, "amount")))
+                                        .executes(source -> setMaxConfig(source.getSource(), ScalingMobsConfig.MOB_HEALTH_MAX, "health", DoubleArgumentType.getDouble(source, "amount")))
                                 )
                                 .then(Commands.literal("get")
-                                        .executes(source -> getHealthMax(source.getSource()))
+                                        .executes(source -> getMaxConfig(source.getSource(), ScalingMobsConfig.MOB_HEALTH_MAX, "health"))
                                 )
                         )
                 )
                 .then(Commands.literal("damage")
                         .then(Commands.literal("rate")
                                 .then(Commands.argument("set", DoubleArgumentType.doubleArg(0.0, Double.MAX_VALUE)).requires(source -> source.hasPermission(2))
-                                        .executes(source -> setDamageRate(source.getSource(), DoubleArgumentType.getDouble(source, "amount")))
+                                        .executes(source -> setRateConfig(source.getSource(), ScalingMobsConfig.MOB_DAMAGE_RATE, "damage", DoubleArgumentType.getDouble(source, "amount")))
                                 )
                                 .then(Commands.literal("get")
-                                        .executes(source -> getDamageRate(source.getSource()))
+                                        .executes(source -> getRateConfig(source.getSource(), ScalingMobsConfig.MOB_DAMAGE_RATE, "damage"))
                                 )
                         )
                         .then(Commands.literal("base")
                                 .then(Commands.argument("set", DoubleArgumentType.doubleArg(0.0, Double.MAX_VALUE)).requires(source -> source.hasPermission(2))
-                                        .executes(source -> setDamageBase(source.getSource(), DoubleArgumentType.getDouble(source, "amount")))
+                                        .executes(source -> setBaseConfig(source.getSource(), ScalingMobsConfig.MOB_DAMAGE_BASE, "damage", DoubleArgumentType.getDouble(source, "amount")))
                                 )
                                 .then(Commands.literal("get")
-                                        .executes(source -> getDamageBase(source.getSource()))
+                                        .executes(source -> getBaseConfig(source.getSource(), ScalingMobsConfig.MOB_DAMAGE_BASE, "damage"))
                                 )
                         )
                         .then(Commands.literal("max")
                                 .then(Commands.argument("set", DoubleArgumentType.doubleArg(0.0, Double.MAX_VALUE))
-                                        .executes(source -> setDamageMax(source.getSource(), DoubleArgumentType.getDouble(source, "amount")))
+                                        .executes(source -> setMaxConfig(source.getSource(), ScalingMobsConfig.MOB_DAMAGE_MAX, "damage", DoubleArgumentType.getDouble(source, "amount")))
                                 )
                                 .then(Commands.literal("get")
-                                        .executes(source -> getDamageMax(source.getSource()))
+                                        .executes(source -> getMaxConfig(source.getSource(), ScalingMobsConfig.MOB_DAMAGE_MAX, "damage"))
                                 )
                         )
                 )
                 .then(Commands.literal("piercing")
                         .then(Commands.literal("rate")
                                 .then(Commands.argument("amount", DoubleArgumentType.doubleArg(0.0, Double.MAX_VALUE)).requires(source -> source.hasPermission(2))
-                                        .executes(source -> setPierceRate(source.getSource(), DoubleArgumentType.getDouble(source, "amount")))
+                                        .executes(source -> setRateConfig(source.getSource(), ScalingMobsConfig.ARMOR_PIERCING_RATE, "piercing", DoubleArgumentType.getDouble(source, "amount")))
                                 )
                                 .then(Commands.literal("get")
-                                        .executes(source -> getPierceRate(source.getSource()))
+                                        .executes(source -> getRateConfig(source.getSource(), ScalingMobsConfig.ARMOR_PIERCING_RATE, "piercing"))
                                 )
                         )
                         .then(Commands.literal("base")
                                 .then(Commands.argument("amount", DoubleArgumentType.doubleArg(0.0, Double.MAX_VALUE)).requires(source -> source.hasPermission(2))
-                                        .executes(source -> setPierceBase(source.getSource(), DoubleArgumentType.getDouble(source, "amount")))
+                                        .executes(source -> setBaseConfig(source.getSource(), ScalingMobsConfig.ARMOR_PIERCING_BASE, "piercing", DoubleArgumentType.getDouble(source, "amount")))
                                 )
                                 .then(Commands.literal("get")
-                                        .executes(source -> getPierceBase(source.getSource()))
+                                        .executes(source -> getBaseConfig(source.getSource(), ScalingMobsConfig.ARMOR_PIERCING_BASE, "piercing"))
                                 )
                         )
                         .then(Commands.literal("max")
                                 .then(Commands.argument("amount", DoubleArgumentType.doubleArg(0.0, Double.MAX_VALUE)).requires(source -> source.hasPermission(2))
-                                        .executes(source -> setMaxPierce(source.getSource(), DoubleArgumentType.getDouble(source, "amount")))
+                                        .executes(source -> setMaxConfig(source.getSource(), ScalingMobsConfig.ARMOR_PIERCING_MAX, "piercing", DoubleArgumentType.getDouble(source, "amount")))
                                 )
                                 .then(Commands.literal("get")
-                                        .executes(source -> getPierceMax(source.getSource()))
+                                        .executes(source -> getMaxConfig(source.getSource(), ScalingMobsConfig.ARMOR_PIERCING_MAX, "piercing"))
                                 )
                         )
                 )
                 .then(Commands.literal("drops")
                         .then(Commands.literal("rate")
                                 .then(Commands.argument("amount", DoubleArgumentType.doubleArg(0.0, Double.MAX_VALUE)).requires(source -> source.hasPermission(2))
-                                        .executes(source -> setDropRate(source.getSource(), DoubleArgumentType.getDouble(source, "amount")))
+                                        .executes(source -> setRateConfig(source.getSource(), ScalingMobsConfig.MOB_DROPS_RATE, "drops", DoubleArgumentType.getDouble(source, "amount")))
                                 )
                                 .then(Commands.literal("get")
-                                        .executes(source -> getDropRate(source.getSource()))
+                                        .executes(source -> getRateConfig(source.getSource(), ScalingMobsConfig.MOB_DROPS_RATE, "drops"))
                                 )
                         )
                         .then(Commands.literal("base")
                                 .then(Commands.argument("amount", DoubleArgumentType.doubleArg(0.0, Double.MAX_VALUE)).requires(source -> source.hasPermission(2))
-                                        .executes(source -> setDropBase(source.getSource(), DoubleArgumentType.getDouble(source, "amount")))
+                                        .executes(source -> setBaseConfig(source.getSource(), ScalingMobsConfig.MOB_DROPS_BASE, "drops", DoubleArgumentType.getDouble(source, "amount")))
                                 )
                                 .then(Commands.literal("get")
-                                        .executes(source -> getDropBase(source.getSource()))
+                                        .executes(source -> getBaseConfig(source.getSource(), ScalingMobsConfig.MOB_DROPS_BASE, "drops"))
                                 )
                         )
                         .then(Commands.literal("max")
                                 .then(Commands.argument("amount", DoubleArgumentType.doubleArg(0.0, Double.MAX_VALUE)).requires(source -> source.hasPermission(2))
-                                        .executes(source -> setMaxDrop(source.getSource(), DoubleArgumentType.getDouble(source, "amount")))
+                                        .executes(source -> setMaxConfig(source.getSource(), ScalingMobsConfig.MOB_DROPS_MAX, "drops", DoubleArgumentType.getDouble(source, "amount")))
                                 )
                                 .then(Commands.literal("get")
-                                        .executes(source -> getDropMax(source.getSource()))
+                                        .executes(source -> getMaxConfig(source.getSource(), ScalingMobsConfig.MOB_DROPS_MAX, "drops"))
                                 )
                         )
                 )
@@ -149,577 +148,162 @@ public class ScalingMobsCommand extends BaseCommand
                                 .executes(source -> getBurnDay(source.getSource()))
                         )
                 )
+                .then(Commands.literal("scale")
+                        .then(Commands.literal("set")
+                                .then(Commands.argument("amount", DoubleArgumentType.doubleArg(0.0, Double.MAX_VALUE)).requires(source -> source.hasPermission(2))
+                                        .executes(source -> setScale(source.getSource(), DoubleArgumentType.getDouble(source, "amount")))
+                                )
+                        )
+                        .then(Commands.literal("get")
+                                .executes(source -> getScale(source.getSource()))
+                        )
+                )
                 .then(Commands.literal("get")
                         .executes(source -> getAll(source.getSource()))
                 );
     }
 
+    private static Component getRateMessage(String stat, double rate)
+    {   return Component.literal(String.format("Set the rate of mob %s scaling to +%s%% per day", stat, rate * 100));
+    }
+
+    private static Component getBaseMessage(String stat, double base)
+    {   return Component.literal(String.format("Set the base %s multiplier of all mobs to %s%%", stat, (1 + base) * 100));
+    }
+
+    private static Component getMaxMessage(String stat, double max)
+    {   return Component.literal(String.format("Set the maximum %s scaling of all mobs to %s%%", stat, (1 + max) * 100));
+    }
 
     /**
      * Set Commands
      */
-    static int setHealthRate(CommandSourceStack source, double rate) throws CommandSyntaxException
+    static int setRateConfig(CommandSourceStack source, ForgeConfigSpec.DoubleValue config, String stat, double rate)
     {
-        ScalingMobsConfig.getInstance().setMobHealthRate(rate);
-
-        String yellow = ChatFormatting.YELLOW.toString();
-        String white = ChatFormatting.WHITE.toString();
-        String dgray = ChatFormatting.DARK_GRAY.toString();
-        String gray = ChatFormatting.GRAY.toString();
-
-        // print changes to sender
-        source.getPlayer().displayClientMessage(Component.literal(
-                yellow + "Set the rate of mob health scaling to " +
-                white + "+" + ScalingMobsConfig.getInstance().getMobHealthRate() * 100 + "%" + yellow + " per day"), false);
-
-        // print to all players
-        for (Player player : source.getPlayer().level().players())
-        {
-            if (player != source.getPlayer())
-            {
-                player.displayClientMessage(Component.literal(
-                        gray + source.getPlayer().getName().getString() + ": " + dgray +
-                        "Set the rate of mob health scaling to " + gray + ScalingMobsConfig.getInstance().getMobHealthRate() * 100 + "%"), false);
-            }
-        }
+        config.set(rate);
+        source.sendSuccess(() -> getRateMessage(stat, rate), true);
 
         return Command.SINGLE_SUCCESS;
     }
 
-    static int setHealthBase(CommandSourceStack source, double base) throws CommandSyntaxException
+    static int setBaseConfig(CommandSourceStack source, ForgeConfigSpec.DoubleValue config, String stat, double base)
     {
-        ScalingMobsConfig.getInstance().setMobHealthBase(base);
-
-        String yellow = ChatFormatting.YELLOW.toString();
-        String white = ChatFormatting.WHITE.toString();
-        String dgray = ChatFormatting.DARK_GRAY.toString();
-        String gray = ChatFormatting.GRAY.toString();
-
-        // print changes to sender
-        source.getPlayer().displayClientMessage(Component.literal(
-                yellow + "Set the base health of all mobs to " +
-                white + ScalingMobsConfig.getInstance().getMobHealthBase() * 100 + "%" + yellow + " of their original values"), false);
-
-        // print to all players
-        for (Player player : source.getPlayer().level().players())
-        {
-            if (player != source.getPlayer())
-            {
-                player.displayClientMessage(Component.literal(
-                        gray + source.getPlayer().getName().getString() + ": " + dgray +
-                        "Set the base health of all mobs to " + gray + ScalingMobsConfig.getInstance().getMobHealthBase() * 100 + "%" + dgray + " of their original values"), false);
-            }
-        }
+        config.set(base);
+        source.sendSuccess(() -> getBaseMessage(stat, base), true);
 
         return Command.SINGLE_SUCCESS;
     }
 
-    static int setHealthMax(CommandSourceStack source, double max) throws CommandSyntaxException
+    static int setMaxConfig(CommandSourceStack source, ForgeConfigSpec.DoubleValue config, String stat, double max)
     {
-        ScalingMobsConfig.getInstance().setMobHealthMax(max);
-        ScalingMobsConfig.getInstance().save();
-
-        source.getPlayer().displayClientMessage(Component.literal(
-                ChatFormatting.YELLOW + "Set the maximum health of all mobs to " +
-                ChatFormatting.WHITE + ScalingMobsConfig.getInstance().getMobHealthMax() * 100 + "%"), false);
-
-        for (Player player : source.getPlayer().level().players())
-        {
-            if (player != source.getPlayer())
-            {
-                player.displayClientMessage(Component.literal(
-                        ChatFormatting.GRAY + source.getPlayer().getName().getString() + ": " +
-                        ChatFormatting.DARK_GRAY + "Set the maximum health of all mobs to " +
-                        ChatFormatting.GRAY + ScalingMobsConfig.getInstance().getMobHealthMax() * 100 + "%"), false);
-            }
-        }
+        config.set(max);
+        source.sendSuccess(() -> getMaxMessage(stat, max), true);
 
         return Command.SINGLE_SUCCESS;
     }
 
-    static int setDamageRate(CommandSourceStack source, double rate) throws CommandSyntaxException
+    static int setExponential(CommandSourceStack source, boolean exponential)
     {
-        ScalingMobsConfig.getInstance().setMobDamageRate(rate);
+        ScalingMobsConfig.EXPONENTIAL_SCALING.set(exponential);
 
-        String yellow = ChatFormatting.YELLOW.toString();
-        String white = ChatFormatting.WHITE.toString();
-        String dgray = ChatFormatting.DARK_GRAY.toString();
-        String gray = ChatFormatting.GRAY.toString();
-
-        // print changes to sender
-        source.getPlayer().displayClientMessage(Component.literal(
-                yellow + "Set the rate of mob damage scaling to " +
-                white + "+" + ScalingMobsConfig.getInstance().getMobDamageRate() * 100 + "%" + yellow + " per day"), false);
-
-        // print to all players
-        for (Player player : source.getPlayer().level().players())
-        {
-            if (player != source.getPlayer())
-            {
-                player.displayClientMessage(Component.literal(
-                        gray + source.getPlayer().getName().getString() + ": " + dgray +
-                        "Set the rate of mob damage scaling to " + gray + ScalingMobsConfig.getInstance().getMobDamageRate() * 100 + "%"), false);
-            }
-        }
+        Component message = Component.literal(String.format("Set mob damage scaling mode to %s", ScalingMobsConfig.EXPONENTIAL_SCALING.get() ? "exponential" : "linear"));
+        source.sendSuccess(() -> message, true);
 
         return Command.SINGLE_SUCCESS;
     }
 
-    static int setDamageBase(CommandSourceStack source, double base) throws CommandSyntaxException
+    static int setBurnDay(CommandSourceStack source, int day)
     {
-        ScalingMobsConfig.getInstance().setMobDamageBase(base);
+        ScalingMobsConfig.STOP_BURNING_DAY.set(day);
 
-        String yellow = ChatFormatting.YELLOW.toString();
-        String white = ChatFormatting.WHITE.toString();
-        String dgray = ChatFormatting.DARK_GRAY.toString();
-        String gray = ChatFormatting.GRAY.toString();
-
-        // print changes to sender
-        source.getPlayer().displayClientMessage(Component.literal(
-                yellow + "Set the base damage of all mobs to " +
-                white + ScalingMobsConfig.getInstance().getMobDamageBase() * 100 + "%" + yellow + " of their original values"), false);
-
-        // print to all players
-        for (Player player : source.getPlayer().level().players())
-        {
-            if (player != source.getPlayer())
-            {
-                player.displayClientMessage(Component.literal(
-                        gray + source.getPlayer().getName().getString() + ": " + dgray +
-                        "Set the base damage of all mobs to " + gray + ScalingMobsConfig.getInstance().getMobDamageBase() * 100 + "%" + dgray + " of their original values"), false);
-            }
-        }
+        Component message = Component.literal(String.format("Mobs will now stop burning after day %s", ScalingMobsConfig.STOP_BURNING_DAY.get()));
+        source.sendSuccess(() -> message, true);
 
         return Command.SINGLE_SUCCESS;
     }
 
-    static int setDamageMax(CommandSourceStack source, double max) throws CommandSyntaxException
+    static int setScale(CommandSourceStack source, double scale)
     {
-        ScalingMobsConfig.getInstance().setMobDamageMax(max);
+        LevelScalingData.get(source.getLevel()).setScale(scale);
 
-        source.getPlayer().displayClientMessage(Component.literal(
-                ChatFormatting.YELLOW + "Set the maximum damage of all mobs to " +
-                ChatFormatting.WHITE + ScalingMobsConfig.getInstance().getMobDamageMax() * 100 + "%"), false);
-
-        // print to all players
-        for (Player player : source.getPlayer().level().players())
-        {
-            if (player != source.getPlayer())
-            {
-                player.displayClientMessage(Component.literal(
-                        ChatFormatting.GRAY + source.getPlayer().getName().getString() + ": " +
-                        ChatFormatting.DARK_GRAY + "Set the maximum damage of all mobs to " +
-                        ChatFormatting.WHITE + ScalingMobsConfig.getInstance().getMobDamageMax() * 100 + "%"), false);
-            }
-        }
+        Component message = Component.literal(String.format("Set mob scaling factor to %s", scale));
+        source.sendSuccess(() -> message, true);
 
         return Command.SINGLE_SUCCESS;
     }
-
-    static int setPierceRate(CommandSourceStack source, double rate) throws CommandSyntaxException
-    {
-        ScalingMobsConfig.getInstance().setPiercingRate(rate);
-
-        String yellow = ChatFormatting.YELLOW.toString();
-        String white = ChatFormatting.WHITE.toString();
-        String dgray = ChatFormatting.DARK_GRAY.toString();
-        String gray = ChatFormatting.GRAY.toString();
-
-        // print changes to sender
-        source.getPlayer().displayClientMessage(Component.literal(
-                yellow + "Set the rate of mob piercing damage increase to " +
-                white + "+" + ScalingMobsConfig.getInstance().getPiercingRate() * 100 + "%" + yellow + " per day"), false);
-
-        // print to all players
-        for (Player player : source.getPlayer().level().players())
-        {
-            if (player != source.getPlayer())
-            {
-                player.displayClientMessage(Component.literal(
-                        gray + source.getPlayer().getName().getString() + ": " + dgray +
-                        "Set the rate of mob piercing damage increase to " + gray + ScalingMobsConfig.getInstance().getPiercingRate() * 100 + "%" + dgray + " per day"), false);
-            }
-        }
-
-        return Command.SINGLE_SUCCESS;
-    }
-
-    static int setPierceBase(CommandSourceStack source, double base) throws CommandSyntaxException
-    {
-        ScalingMobsConfig.getInstance().setPiercingBase(base);
-
-        String yellow = ChatFormatting.YELLOW.toString();
-        String white = ChatFormatting.WHITE.toString();
-        String dgray = ChatFormatting.DARK_GRAY.toString();
-        String gray = ChatFormatting.GRAY.toString();
-
-        // print changes to sender
-        source.getPlayer().displayClientMessage(Component.literal(
-                yellow + "Set the base amount of mob piercing damage to " +
-                white + ScalingMobsConfig.getInstance().getPiercingBase() * 100 + "%"), false);
-
-        // print to all players
-        for (Player player : source.getPlayer().level().players())
-        {
-            if (player != source.getPlayer())
-            {
-                player.displayClientMessage(Component.literal(
-                        gray + source.getPlayer().getName().getString() + ": " + dgray +
-                        "Set the base amount of mob piercing damage to " + gray + ScalingMobsConfig.getInstance().getPiercingBase() * 100 + "%"), false);
-            }
-        }
-
-        return Command.SINGLE_SUCCESS;
-    }
-
-    static int setMaxPierce(CommandSourceStack source, double max) throws CommandSyntaxException
-    {
-        ScalingMobsConfig.getInstance().setMaxPiercing(max);
-
-        String yellow = ChatFormatting.YELLOW.toString();
-        String white = ChatFormatting.WHITE.toString();
-        String dgray = ChatFormatting.DARK_GRAY.toString();
-        String gray = ChatFormatting.GRAY.toString();
-
-        // print changes to sender
-        source.getPlayer().displayClientMessage(Component.literal(
-                yellow + "Set the maximum amount of mob piercing damage to " +
-                white + ScalingMobsConfig.getInstance().getMaxPiercing() * 100 + "%"), false);
-
-        // print to all players
-        for (Player player : source.getPlayer().level().players())
-        {
-            if (player != source.getPlayer())
-            {
-                player.displayClientMessage(Component.literal(
-                        gray + source.getPlayer().getName().getString() + ": " + dgray +
-                        "Set the maximum amount of mob piercing damage to " + gray + ScalingMobsConfig.getInstance().getMaxPiercing() * 100 + "%"), false);
-            }
-        }
-
-        return Command.SINGLE_SUCCESS;
-    }
-
-    static int setDropRate(CommandSourceStack source, double rate) throws CommandSyntaxException
-    {
-        ScalingMobsConfig.getInstance().setMobDropsRate(rate);
-
-        String yellow = ChatFormatting.YELLOW.toString();
-        String white = ChatFormatting.WHITE.toString();
-        String dgray = ChatFormatting.DARK_GRAY.toString();
-        String gray = ChatFormatting.GRAY.toString();
-
-        // print changes to sender
-        source.getPlayer().displayClientMessage(Component.literal(
-                yellow + "Set the rate of mob drop increase to " +
-                white + "+" + ScalingMobsConfig.getInstance().getMobDropsRate() * 100 + "%" + yellow + " per day"), false);
-
-        // print to all players
-        for (Player player : source.getPlayer().level().players())
-        {
-            if (player != source.getPlayer())
-            {
-                player.displayClientMessage(Component.literal(
-                        gray + source.getPlayer().getName().getString() + ": " + dgray +
-                        "Set the rate of mob drop increase to " + gray + ScalingMobsConfig.getInstance().getMobDropsRate() * 100 + "%" + dgray + " per day"), false);
-            }
-        }
-
-        return Command.SINGLE_SUCCESS;
-    }
-
-    static int setDropBase(CommandSourceStack source, double base) throws CommandSyntaxException
-    {
-        ScalingMobsConfig.getInstance().setMobDropsBase(base);
-
-        String yellow = ChatFormatting.YELLOW.toString();
-        String white = ChatFormatting.WHITE.toString();
-        String dgray = ChatFormatting.DARK_GRAY.toString();
-        String gray = ChatFormatting.GRAY.toString();
-
-        // print changes to sender
-        source.getPlayer().displayClientMessage(Component.literal(
-                yellow + "Set the base amount of mob drops to " +
-                        white + ScalingMobsConfig.getInstance().getMobDropsBase()), false);
-
-        // print to all players
-        for (Player player : source.getPlayer().level().players())
-        {
-            if (player != source.getPlayer())
-            {
-                player.displayClientMessage(Component.literal(
-                        gray + source.getPlayer().getName().getString() + ": " + dgray +
-                                "Set the base amount of mob drops to " + gray + ScalingMobsConfig.getInstance().getMobDropsBase()), false);
-            }
-        }
-
-        return Command.SINGLE_SUCCESS;
-    }
-
-    static int setMaxDrop(CommandSourceStack source, double max) throws CommandSyntaxException
-    {
-        ScalingMobsConfig.getInstance().setMobDropsMax(max);
-
-        String yellow = ChatFormatting.YELLOW.toString();
-        String white = ChatFormatting.WHITE.toString();
-        String dgray = ChatFormatting.DARK_GRAY.toString();
-        String gray = ChatFormatting.GRAY.toString();
-
-        // print changes to sender
-        source.getPlayer().displayClientMessage(Component.literal(
-                yellow + "Set the maximum amount of mob drops to " +
-                white + ScalingMobsConfig.getInstance().getMobDropsMax()), false);
-
-        // print to all players
-        for (Player player : source.getPlayer().level().players())
-        {
-            if (player != source.getPlayer())
-            {
-                player.displayClientMessage(Component.literal(
-                        gray + source.getPlayer().getName().getString() + ": " + dgray +
-                        "Set the maximum amount of mob drops to " + gray + ScalingMobsConfig.getInstance().getMobDropsMax()), false);
-            }
-        }
-
-        return Command.SINGLE_SUCCESS;
-    }
-
-    static int setExponential(CommandSourceStack source, boolean exponential) throws CommandSyntaxException
-    {
-        ScalingMobsConfig.getInstance().setExponentialStats(exponential);
-
-        String yellow = ChatFormatting.YELLOW.toString();
-        String white = ChatFormatting.WHITE.toString();
-        String dgray = ChatFormatting.DARK_GRAY.toString();
-        String gray = ChatFormatting.GRAY.toString();
-
-        // print changes to sender
-        source.getPlayer().displayClientMessage(Component.literal(
-                yellow + "Set mob damage scaling mode to " +
-                white + (ScalingMobsConfig.getInstance().areStatsExponential() ? "exponential" : "linear")), false);
-
-        // print to all players
-        for (Player player : source.getPlayer().level().players())
-        {
-            if (player != source.getPlayer())
-            {
-                player.displayClientMessage(Component.literal(
-                        gray + source.getPlayer().getName().getString() + ": " + dgray +
-                        "Set mob damage scaling mode to " + gray + (ScalingMobsConfig.getInstance().areStatsExponential() ? "exponential" : "linear")), false);
-            }
-        }
-
-        return Command.SINGLE_SUCCESS;
-    }
-
-    static int setBurnDay(CommandSourceStack source, int day) throws CommandSyntaxException
-    {
-        ScalingMobsConfig.getInstance().setMobsStopBurningDay(day);
-
-        String yellow = ChatFormatting.YELLOW.toString();
-        String white = ChatFormatting.WHITE.toString();
-        String dgray = ChatFormatting.DARK_GRAY.toString();
-        String gray = ChatFormatting.GRAY.toString();
-
-        // print changes to sender
-        source.getPlayer().displayClientMessage(Component.literal(
-                yellow + "Mobs will now stop burning after day " +
-                white + ScalingMobsConfig.getInstance().getMobsStopBurningDay()), false);
-
-        // print to all players
-        for (Player player : source.getPlayer().level().players())
-        {
-            if (player != source.getPlayer())
-            {
-                player.displayClientMessage(Component.literal(
-                        gray + source.getPlayer().getName().getString() + ": " + dgray +
-                        "Set the day of the month to start burning mobs for " + gray + ScalingMobsConfig.getInstance().getMobsStopBurningDay()), false);
-            }
-        }
-
-        return Command.SINGLE_SUCCESS;
-    }
-
     
     /**
      * Get Commands
      */
-    static int getHealthRate(CommandSourceStack source) throws CommandSyntaxException
+    static int getRateConfig(CommandSourceStack source, ForgeConfigSpec.DoubleValue config, String stat)
     {
-        String yellow = ChatFormatting.YELLOW.toString();
-        String white = ChatFormatting.WHITE.toString();
-
-        source.getPlayer().displayClientMessage(Component.literal(yellow + "The rate of mob health scaling is currently " +
-                white + "+" + ScalingMobsConfig.getInstance().getMobHealthRate() * 100 + "%" + yellow + " per day"), false);
+        Component message = Component.literal(String.format("The rate of mob %s scaling is currently %s", stat, config.get()));
+        source.sendSystemMessage(message);
 
         return Command.SINGLE_SUCCESS;
     }
 
-    static int getHealthBase(CommandSourceStack source) throws CommandSyntaxException
+    static int getBaseConfig(CommandSourceStack source, ForgeConfigSpec.DoubleValue config, String stat)
     {
-        String yellow = ChatFormatting.YELLOW.toString();
-        String white = ChatFormatting.WHITE.toString();
-
-        source.getPlayer().displayClientMessage(Component.literal(yellow + "The base health for all mobs is currently " +
-                white + ScalingMobsConfig.getInstance().getMobHealthBase() * 100 + "%" + yellow + " of their original values"), false);
+        Component message = Component.literal(String.format("The base %s multiplier of all mobs is currently %s", stat, config.get()));
+        source.sendSystemMessage(message);
 
         return Command.SINGLE_SUCCESS;
     }
 
-    static int getHealthMax(CommandSourceStack source) throws CommandSyntaxException
+    static int getMaxConfig(CommandSourceStack source, ForgeConfigSpec.DoubleValue config, String stat)
     {
-        String yellow = ChatFormatting.YELLOW.toString();
-        String white = ChatFormatting.WHITE.toString();
-
-        source.getPlayer().displayClientMessage(Component.literal(yellow + "The maximum health for all mobs is currently " +
-                white + ScalingMobsConfig.getInstance().getMobHealthMax() * 100 + "%" + yellow + " of their original values"), false);
+        Component message = Component.literal(String.format("The maximum %s scaling of all mobs is currently %s", stat, config.get()));
+        source.sendSystemMessage(message);
 
         return Command.SINGLE_SUCCESS;
     }
 
-    static int getDamageRate(CommandSourceStack source) throws CommandSyntaxException
+    static int getExponential(CommandSourceStack source)
     {
-        String yellow = ChatFormatting.YELLOW.toString();
-        String white = ChatFormatting.WHITE.toString();
-
-        source.getPlayer().displayClientMessage(Component.literal(yellow + "The rate of mob damage scaling is currently " +
-                white + "+" + ScalingMobsConfig.getInstance().getMobDamageRate() * 100 + "%" + yellow + " per day"), false);
+        Component message = Component.literal("Mob damage scaling is currently " + (ScalingMobsConfig.EXPONENTIAL_SCALING.get() ? "exponential" : "linear"));
+        source.sendSystemMessage(message);
 
         return Command.SINGLE_SUCCESS;
     }
 
-    static int getDamageBase(CommandSourceStack source) throws CommandSyntaxException
+    static int getBurnDay(CommandSourceStack source)
     {
-        String yellow = ChatFormatting.YELLOW.toString();
-        String white = ChatFormatting.WHITE.toString();
-
-        source.getPlayer().displayClientMessage(Component.literal(yellow + "The base damage for all mobs is currently " +
-                white + ScalingMobsConfig.getInstance().getMobDamageBase() * 100 + "%" + yellow + " of their original values"), false);
+        int stopBurningDay = ScalingMobsConfig.STOP_BURNING_DAY.get();
+        boolean inPast = source.getLevel().dayTime() / 24000 > stopBurningDay;
+        Component message = inPast ? Component.literal("Mobs stopped burning on day " + stopBurningDay)
+                                   : Component.literal("Mobs will stop burning after day " + stopBurningDay);
+        source.sendSystemMessage(message);
 
         return Command.SINGLE_SUCCESS;
     }
 
-    static int getDamageMax(CommandSourceStack source) throws CommandSyntaxException
+    static int getScale(CommandSourceStack source)
     {
-        String yellow = ChatFormatting.YELLOW.toString();
-        String white = ChatFormatting.WHITE.toString();
-
-        source.getPlayer().displayClientMessage(Component.literal(yellow + "The maximum damage for all mobs is currently " +
-                white + ScalingMobsConfig.getInstance().getMobDamageMax() * 100 + "%" + yellow + " of their original values"), false);
+        double scale = LevelScalingData.get(source.getLevel()).scale();
+        Component message = Component.literal("Mob scaling factor is currently " + scale);
+        source.sendSystemMessage(message);
 
         return Command.SINGLE_SUCCESS;
     }
 
-    static int getPierceRate(CommandSourceStack source) throws CommandSyntaxException
+    static int getAll(CommandSourceStack source)
     {
-        String yellow = ChatFormatting.YELLOW.toString();
-        String white = ChatFormatting.WHITE.toString();
-
-        source.getPlayer().displayClientMessage(Component.literal(yellow + "The rate of mob piercing damage increase is currently " +
-                white + "+" + ScalingMobsConfig.getInstance().getPiercingRate() * 100 + "%" + yellow + " per day"), false);
-
-        return Command.SINGLE_SUCCESS;
-    }
-
-    static int getPierceBase(CommandSourceStack source) throws CommandSyntaxException
-    {
-        String yellow = ChatFormatting.YELLOW.toString();
-        String white = ChatFormatting.WHITE.toString();
-
-        source.getPlayer().displayClientMessage(Component.literal(yellow + "The base amount of mob piercing damage is currently " +
-                white + ScalingMobsConfig.getInstance().getPiercingBase() * 100 + "%"), false);
-
-        return Command.SINGLE_SUCCESS;
-    }
-
-    static int getPierceMax(CommandSourceStack source) throws CommandSyntaxException
-    {
-        String yellow = ChatFormatting.YELLOW.toString();
-        String white = ChatFormatting.WHITE.toString();
-
-        source.getPlayer().displayClientMessage(Component.literal(yellow + "The maximum amount of mob piercing damage is currently " +
-                white + ScalingMobsConfig.getInstance().getMaxPiercing() * 100 + "%"), false);
-
-        return Command.SINGLE_SUCCESS;
-    }
-
-    static int getDropRate(CommandSourceStack source) throws CommandSyntaxException
-    {
-        String yellow = ChatFormatting.YELLOW.toString();
-        String white = ChatFormatting.WHITE.toString();
-
-        source.getPlayer().displayClientMessage(Component.literal(yellow + "The rate of mob drop scaling is currently " +
-                white + "+" + ScalingMobsConfig.getInstance().getMobDropsRate() * 100 + "%" + yellow + " per day"), false);
-
-        return Command.SINGLE_SUCCESS;
-    }
-
-    static int getDropBase(CommandSourceStack source) throws CommandSyntaxException
-    {
-        String yellow = ChatFormatting.YELLOW.toString();
-        String white = ChatFormatting.WHITE.toString();
-
-        source.getPlayer().displayClientMessage(Component.literal(yellow + "The base amount of mob drop scaling is currently " +
-                white + ScalingMobsConfig.getInstance().getMobDropsBase() * 100 + "%"), false);
-
-        return Command.SINGLE_SUCCESS;
-    }
-
-    static int getDropMax(CommandSourceStack source) throws CommandSyntaxException
-    {
-        String yellow = ChatFormatting.YELLOW.toString();
-        String white = ChatFormatting.WHITE.toString();
-
-        source.getPlayer().displayClientMessage(Component.literal(yellow + "The maximum amount of mob drop scaling is currently " +
-                white + ScalingMobsConfig.getInstance().getMobDropsMax() * 100 + "%"), false);
-
-        return Command.SINGLE_SUCCESS;
-    }
-
-    static int getExponential(CommandSourceStack source) throws CommandSyntaxException
-    {
-        String yellow = ChatFormatting.YELLOW.toString();
-        String white = ChatFormatting.WHITE.toString();
-
-        source.getPlayer().displayClientMessage(Component.literal(yellow + "The mob damage scaling mode is currently " +
-                white + (ScalingMobsConfig.getInstance().areStatsExponential() ? "exponential" : "linear")), false);
-
-        return Command.SINGLE_SUCCESS;
-    }
-
-    static int getBurnDay(CommandSourceStack source) throws CommandSyntaxException
-    {
-        String yellow = ChatFormatting.YELLOW.toString();
-        String white = ChatFormatting.WHITE.toString();
-
-        source.getPlayer().displayClientMessage(Component.literal(yellow + "Mobs will currently start burning on day " +
-                white + ScalingMobsConfig.getInstance().getMobsStopBurningDay()), false);
-
-        return Command.SINGLE_SUCCESS;
-    }
-
-    static int getAll(CommandSourceStack source) throws CommandSyntaxException
-    {
-        String yellow = ChatFormatting.YELLOW.toString();
-        String white = ChatFormatting.WHITE.toString();
-
-        ScalingMobsConfig cfg = ScalingMobsConfig.getInstance();
         int currentDay = (int) (source.getPlayer().level().getDayTime() / 24000L);
-        boolean exp = cfg.areStatsExponential();
 
         DecimalFormat df = new DecimalFormat("#.##");
 
-        source.getPlayer().displayClientMessage(Component.literal(yellow + "Current damage scaling: " +
-                white + df.format(MonsterEvents.getMultipliedStat(100, cfg.getMobDamageBase(), cfg.getMobDamageRate(), cfg.getMobDamageMax(), currentDay, exp)) + "%"), false);
+        source.sendSystemMessage(Component.literal("Current damage scaling: " +
+                df.format(MonsterEvents.getMultipliedStat(100, ScalingMobsConfig.MOB_DAMAGE_BASE.get(), ScalingMobsConfig.MOB_DAMAGE_RATE.get(), ScalingMobsConfig.MOB_DAMAGE_MAX.get(), currentDay)) + "%"));
 
-        source.getPlayer().displayClientMessage(Component.literal(yellow + "Current health scaling: " +
-                white + df.format(MonsterEvents.getMultipliedStat(100, cfg.getMobHealthBase(), cfg.getMobHealthRate(), cfg.getMobHealthMax(), currentDay, exp)) + "%"), false);
+        source.sendSystemMessage(Component.literal("Current health scaling: " +
+                df.format(MonsterEvents.getMultipliedStat(100, ScalingMobsConfig.MOB_HEALTH_BASE.get(), ScalingMobsConfig.MOB_HEALTH_RATE.get(), ScalingMobsConfig.MOB_HEALTH_MAX.get(), currentDay)) + "%"));
 
-        source.getPlayer().displayClientMessage(Component.literal(yellow + "Current piercing scaling: " +
-                white + df.format(MonsterEvents.getMultipliedStat(100, cfg.getPiercingBase(), cfg.getPiercingRate(), cfg.getMaxPiercing(), currentDay, exp)) + "%"), false);
+        source.sendSystemMessage(Component.literal("Current piercing scaling: " +
+                df.format(MonsterEvents.getMultipliedStat(100, ScalingMobsConfig.ARMOR_PIERCING_BASE.get(), ScalingMobsConfig.ARMOR_PIERCING_RATE.get(), ScalingMobsConfig.ARMOR_PIERCING_MAX.get(), currentDay)) + "%"));
 
-        source.getPlayer().displayClientMessage(Component.literal(yellow + "Current mob drop scaling: " +
-                white + df.format(MonsterEvents.getMultipliedStat(100, cfg.getMobDropsBase(), cfg.getMobDropsRate(), cfg.getMobDropsMax(), currentDay, exp)) + "%"), false);
+        source.sendSystemMessage(Component.literal("Current mob drop scaling: " +
+                df.format(MonsterEvents.getMultipliedStat(100, ScalingMobsConfig.MOB_DROPS_BASE.get(), ScalingMobsConfig.MOB_DROPS_RATE.get(), ScalingMobsConfig.MOB_DROPS_MAX.get(), currentDay)) + "%"));
 
         return Command.SINGLE_SUCCESS;
     }

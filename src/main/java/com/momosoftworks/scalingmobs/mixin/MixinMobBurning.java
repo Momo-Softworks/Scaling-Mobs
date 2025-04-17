@@ -14,7 +14,7 @@ public class MixinMobBurning
     public void isInDaylight(CallbackInfoReturnable<Boolean> cir)
     {
         Mob mob = (Mob) (Object) this;
-        int burnDay = ScalingMobsConfig.getInstance().getMobsStopBurningDay();
+        int burnDay = ScalingMobsConfig.STOP_BURNING_DAY.get();
         boolean canBurnOnThisDay = (int) (mob.level().getDayTime() / 24000L) <= burnDay;
 
         cir.setReturnValue(cir.getReturnValue() && canBurnOnThisDay);
