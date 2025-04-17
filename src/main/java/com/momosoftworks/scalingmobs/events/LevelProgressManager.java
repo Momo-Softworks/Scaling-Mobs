@@ -128,7 +128,7 @@ public class LevelProgressManager
 
     private static <T> void applyMatchingMilestone(ServerLevel level, Function<MilestoneData, List<T>> getter, T value)
     {
-        Registry<MilestoneData> milestoneRegistry = level.registryAccess().registryOrThrow(ModRegistries.MILESTONE_DATA);
+        Registry<MilestoneData> milestoneRegistry = level.registryAccess().registryOrThrow(ModRegistries.MILESTONE);
 
         Class<? super T> baseClass = getBaseClass(value);
         if (TESTED_OBJECTS.put(baseClass, value))

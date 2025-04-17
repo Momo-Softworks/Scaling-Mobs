@@ -2,6 +2,7 @@ package com.momosoftworks.scalingmobs;
 
 import com.momosoftworks.scalingmobs.data.ModRegistries;
 import com.momosoftworks.scalingmobs.data.config.MilestoneData;
+import com.momosoftworks.scalingmobs.data.config.MobModifier;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -29,7 +30,8 @@ public class ScalingMobs
 
         bus.addListener((DataPackRegistryEvent.NewRegistry event) ->
         {
-            event.dataPackRegistry(ModRegistries.MILESTONE_DATA, MilestoneData.CODEC);
+            event.dataPackRegistry(ModRegistries.MILESTONE, MilestoneData.CODEC);
+            event.dataPackRegistry(ModRegistries.MOB_MODIFIER, MobModifier.CODEC);
         });
     }
 

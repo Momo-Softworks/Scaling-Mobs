@@ -1,10 +1,14 @@
 package com.momosoftworks.scalingmobs.events;
 
 import com.momosoftworks.scalingmobs.config.ScalingMobsConfig;
+import com.momosoftworks.scalingmobs.data.ModRegistries;
+import com.momosoftworks.scalingmobs.data.config.MobModifier;
 import com.momosoftworks.scalingmobs.data.save_data.LevelScalingData;
+import net.minecraft.core.Registry;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -13,9 +17,14 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LootingLevelEvent;
+import net.minecraftforge.event.entity.living.MobSpawnEvent;
+import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
+
+import java.util.List;
+import java.util.Map;
 
 @Mod.EventBusSubscriber
 public class MonsterEvents
@@ -69,7 +78,6 @@ public class MonsterEvents
         }
     }
 
-    // Piercing Damage
     @SubscribeEvent
     public static void onMobDealDamage(LivingDamageEvent event)
     {
@@ -90,7 +98,6 @@ public class MonsterEvents
         }
     }
 
-    // Multiply mob drops
     @SubscribeEvent
     public static void onMobDrop(LootingLevelEvent event)
     {
@@ -112,12 +119,52 @@ public class MonsterEvents
         }
     }
 
+    @SubscribeEvent
+    public static void checkMobSpawnPos(MobSpawnEvent.PositionCheck event)
+    {
+        LivingEntity entity = event.getEntity();
+        for (MobModifier modifier : getModifiersForMob(entity))
+        {
+            if (!modifier.canEntitySpawn(entity))
+            {   event.setResult(Event.Result.DENY);
+                return;
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void applyMobModifiers(MobSpawnEvent.FinalizeSpawn event)
+    {
+        LivingEntity entity = event.getEntity();
+        for (MobModifier modifier : getModifiersForMob(entity))
+        {
+            for (Map.Entry<Attribute, Double> entry : modifier.attributes().entrySet())
+            {
+                AttributeInstance attribute = entity.getAttribute(entry.getKey());
+                if (attribute != null)
+                {   attribute.setBaseValue(entry.getValue());
+                }
+            }
+        }
+    }
+
+    private static List<MobModifier> getModifiersForMob(LivingEntity entity)
+    {
+        if (entity.level() instanceof ServerLevel level)
+        {
+            Registry<MobModifier> modifierRegistry = level.registryAccess().registryOrThrow(ModRegistries.MOB_MODIFIER);
+            return modifierRegistry.stream().filter(modifier -> modifier.hasEntity(entity)).toList();
+        }
+        return List.of();
+    }
+
     public static boolean isScalingMob(LivingEntity entity)
     {
         String modId = ForgeRegistries.ENTITY_TYPES.getKey(entity.getType()).toString();
         return (entity instanceof Monster || ScalingMobsConfig.MOB_WHITELIST.get().contains(modId))
             && !ScalingMobsConfig.MOB_BLACKLIST.get().contains(modId);
     }
+
 
     public static double getMultipliedStat(double stat, double base, double rate, double max, double scale)
     {
