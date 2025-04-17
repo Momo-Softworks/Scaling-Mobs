@@ -56,7 +56,6 @@ public class MonsterEvents
                 double healthMax = ScalingMobsConfig.MOB_HEALTH_MAX.get();
                 float currentHealthPercent = living.getHealth() / living.getMaxHealth();
 
-                System.out.println(healthRate * scale);
                 maxHealth.addTransientModifier(new AttributeModifier("ScalingMobs:Health",
                                                                      Math.min(healthBase + healthRate * scale, healthMax),
                                                                      AttributeModifier.Operation.MULTIPLY_TOTAL));
