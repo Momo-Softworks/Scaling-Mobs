@@ -50,6 +50,7 @@ public record MobModifier(List<Either<TagKey<EntityType<?>>, EntityType<?>>> ent
 
     public boolean canEntitySpawn(LivingEntity entity)
     {
+        if (this.disable) return false;
         if (this.distanceFromSpawn > 0
         && entity.blockPosition().distSqr(entity.level().getSharedSpawnPos()) < this.distanceFromSpawn * this.distanceFromSpawn)
         {   return true;
