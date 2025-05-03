@@ -2,6 +2,7 @@ package com.momosoftworks.scalingmobs.events;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import com.mojang.datafixers.util.Either;
 import com.momosoftworks.scalingmobs.ScalingMobs;
 import com.momosoftworks.scalingmobs.api.event.InventoryChangedEvent;
 import com.momosoftworks.scalingmobs.api.event.LivingFindTargetEvent;
@@ -15,11 +16,13 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
@@ -28,9 +31,12 @@ import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.player.AdvancementEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.IForgeRegistry;
 
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 @Mod.EventBusSubscriber
 public class LevelProgressManager
@@ -56,7 +62,7 @@ public class LevelProgressManager
     {
         if (event.getEntity().level() instanceof ServerLevel level)
         {
-            applyMatchingMilestone(level, MilestoneData::advancements, event.getAdvancement().getId());
+            applyMilestone(level, event.getAdvancement().getId(), MilestoneData::advancements);
         }
     }
 
@@ -65,7 +71,8 @@ public class LevelProgressManager
     {
         if (event.getEntity() instanceof ServerPlayer player)
         {
-            applyMatchingMilestone(player.serverLevel(), MilestoneData::dimensions, event.getDimension());
+            Holder<DimensionType> dimension = player.server.getLevel(event.getDimension()).dimensionTypeRegistration();
+            applyTaggableHolderMilestone(player.serverLevel(), dimension, MilestoneData::dimensions);
         }
     }
 
@@ -75,7 +82,7 @@ public class LevelProgressManager
         LivingEntity target = event.getEntity();
         if (target.getLastHurtByMob() instanceof ServerPlayer player)
         {
-            applyMatchingMilestone(player.serverLevel(), MilestoneData::killedMobs, target.getType());
+            applyTaggableMilestone(player.serverLevel(), target.getType(), MilestoneData::killedMobs, ForgeRegistries.ENTITY_TYPES);
         }
     }
 
@@ -85,7 +92,7 @@ public class LevelProgressManager
         if (event.getEntity() instanceof ServerPlayer player
         && event.getSource().getEntity() instanceof LivingEntity entity)
         {
-            applyMatchingMilestone(player.serverLevel(), MilestoneData::encounteredMobs, entity.getType());
+            applyTaggableMilestone(player.serverLevel(), entity.getType(), MilestoneData::encounteredMobs, ForgeRegistries.ENTITY_TYPES);
         }
     }
 
@@ -94,7 +101,7 @@ public class LevelProgressManager
     {
         if (event.getSource().getEntity() instanceof ServerPlayer player)
         {
-            applyMatchingMilestone(player.serverLevel(), MilestoneData::encounteredMobs, event.getEntity().getType());
+            applyTaggableMilestone(player.serverLevel(), event.getEntity().getType(), MilestoneData::encounteredMobs, ForgeRegistries.ENTITY_TYPES);
         }
     }
 
@@ -103,7 +110,7 @@ public class LevelProgressManager
     {
         if (event.getTarget() instanceof ServerPlayer player)
         {
-            applyMatchingMilestone(player.serverLevel(), MilestoneData::encounteredMobs, event.getEntity().getType());
+            applyTaggableMilestone(player.serverLevel(), event.getEntity().getType(), MilestoneData::encounteredMobs, ForgeRegistries.ENTITY_TYPES);
         }
     }
 
@@ -114,7 +121,7 @@ public class LevelProgressManager
         {
             for (ItemStack item : event.getInventory().items)
             {
-                applyMatchingMilestone(player.serverLevel(), MilestoneData::acquiredItems, item.getItem());
+                applyTaggableMilestone(player.serverLevel(), item.getItem(), MilestoneData::acquiredItems, ForgeRegistries.ITEMS);
             }
         }
     }
@@ -124,11 +131,27 @@ public class LevelProgressManager
     {
         if (event.getEntity() instanceof ServerPlayer player)
         {
-            applyMatchingMilestone(player.serverLevel(), MilestoneData::minedBlocks, event.getState().getBlock());
+            applyTaggableMilestone(player.serverLevel(), event.getState().getBlock(), MilestoneData::minedBlocks, ForgeRegistries.BLOCKS);
         }
     }
 
-    private static <T> void applyMatchingMilestone(ServerLevel level, Function<MilestoneData, List<T>> getter, T value)
+    private static <T> void applyTaggableMilestone(ServerLevel level, T value, Function<MilestoneData, List<Either<TagKey<T>, T>>> getter, IForgeRegistry<T> registry)
+    {
+        applyMilestoneInternal(level, getter, list -> list.stream().anyMatch(either -> either.map(tag -> registry.tags().getTag(tag).contains(value),
+                                                                                                  val -> val.equals(value))), value);
+    }
+
+    private static <T> void applyTaggableHolderMilestone(ServerLevel level, Holder<T> value, Function<MilestoneData, List<Either<TagKey<T>, Holder<T>>>> getter)
+    {
+        applyMilestoneInternal(level, getter, list -> list.stream().anyMatch(either -> either.map(tag -> value.is(tag),
+                                                                                                  holder -> holder.value().equals(value))), value);
+    }
+
+    private static <T> void applyMilestone(ServerLevel level, T value, Function<MilestoneData, List<T>> getter)
+    {   applyMilestoneInternal(level, getter, list -> list.contains(value), value);
+    }
+
+    private static <L, T> void applyMilestoneInternal(ServerLevel level, Function<MilestoneData, List<L>> getter, Predicate<List<L>> listTester, T value)
     {
         Registry<MilestoneData> milestoneRegistry = level.registryAccess().registryOrThrow(ModRegistries.MILESTONE);
 
@@ -141,7 +164,7 @@ public class LevelProgressManager
         {
             for (Holder<MilestoneData> milestoneData : milestoneRegistry.holders().toList())
             {
-                if (getter.apply(milestoneData.value()).contains(value))
+                if (listTester.test(getter.apply(milestoneData.value())))
                 {
                     LevelScalingData scalingData = LevelScalingData.get(level);
                     if (scalingData.addMilestone(milestoneData))
