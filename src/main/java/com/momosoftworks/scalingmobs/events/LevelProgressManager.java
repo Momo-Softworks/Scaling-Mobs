@@ -2,12 +2,14 @@ package com.momosoftworks.scalingmobs.events;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import com.momosoftworks.scalingmobs.ScalingMobs;
 import com.momosoftworks.scalingmobs.api.event.InventoryChangedEvent;
 import com.momosoftworks.scalingmobs.api.event.LivingFindTargetEvent;
 import com.momosoftworks.scalingmobs.config.ScalingMobsConfig;
 import com.momosoftworks.scalingmobs.data.ModRegistries;
 import com.momosoftworks.scalingmobs.data.config.MilestoneData;
 import com.momosoftworks.scalingmobs.data.save_data.LevelScalingData;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -130,15 +132,21 @@ public class LevelProgressManager
     {
         Registry<MilestoneData> milestoneRegistry = level.registryAccess().registryOrThrow(ModRegistries.MILESTONE);
 
-        Class<? super T> baseClass = getBaseClass(value);
+        Class<?> baseClass = getBaseClass(value);
+        if (baseClass == null)
+        {   ScalingMobs.LOGGER.error("{} is not a valid objet type for milestones", value.getClass().getSimpleName());
+            return;
+        }
         if (TESTED_OBJECTS.put(baseClass, value))
         {
-            for (MilestoneData milestoneData : milestoneRegistry)
+            for (Holder<MilestoneData> milestoneData : milestoneRegistry.holders().toList())
             {
-                if (getter.apply(milestoneData).contains(value))
+                if (getter.apply(milestoneData.value()).contains(value))
                 {
                     LevelScalingData scalingData = LevelScalingData.get(level);
-                    scalingData.setScale(Math.max(scalingData.scale(), milestoneData.scale()));
+                    if (scalingData.addMilestone(milestoneData))
+                    {   scalingData.setScale(Math.max(scalingData.scale(), milestoneData.value().scale()));
+                    }
                 }
             }
         }
