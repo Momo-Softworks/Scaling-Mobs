@@ -62,7 +62,7 @@ public class ScalingMobsConfig
         MOB_WHITELIST = BUILDER
                 .comment("A list of mobs that will scale, even if they're not monsters")
                 .defineList("Mob Whitelist", List.of(),
-                            element -> element instanceof String);  BUILDER.pop();
+                            element -> element instanceof String);
 
         MOB_BLACKLIST = BUILDER
                 .comment("A list of mobs that will not scale, even if they're monsters")
