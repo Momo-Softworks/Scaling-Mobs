@@ -167,6 +167,6 @@ public class MonsterEvents
 
     public static double getMultipliedStat(double stat, double base, double rate, double max, double scale)
     {
-        return stat * (1 + Mth.clamp(rate * scale, base, max));
+        return stat * (1 + Math.min(base + rate * scale, max));
     }
 }
