@@ -164,15 +164,15 @@ public class ScalingMobsCommand extends BaseCommand
     }
 
     private static Component getRateMessage(String stat, double rate)
-    {   return Component.literal(String.format("Set the rate of mob %s scaling to +%s%% per day", stat, rate * 100));
+    {   return Component.literal(String.format("Set the rate of mob %s scaling to +%s%% per day", stat, formatDouble(rate * 100)));
     }
 
     private static Component getBaseMessage(String stat, double base)
-    {   return Component.literal(String.format("Set the base %s multiplier of all mobs to %s%%", stat, (1 + base) * 100));
+    {   return Component.literal(String.format("Set the base %s multiplier of all mobs to %s%%", stat, formatDouble((1 + base) * 100)));
     }
 
     private static Component getMaxMessage(String stat, double max)
-    {   return Component.literal(String.format("Set the maximum %s scaling of all mobs to %s%%", stat, (1 + max) * 100));
+    {   return Component.literal(String.format("Set the maximum %s scaling of all mobs to %s%%", stat, formatDouble((1 + max) * 100)));
     }
 
     /**
@@ -226,7 +226,7 @@ public class ScalingMobsCommand extends BaseCommand
     {
         LevelScalingData.get(source.getLevel()).setScale(scale);
 
-        Component message = Component.literal(String.format("Set mob scaling factor to %s", scale));
+        Component message = Component.literal(String.format("Set mob scaling factor to %s", formatDouble(scale)));
         source.sendSuccess(() -> message, true);
 
         return Command.SINGLE_SUCCESS;
@@ -237,7 +237,7 @@ public class ScalingMobsCommand extends BaseCommand
      */
     static int getRateConfig(CommandSourceStack source, ForgeConfigSpec.DoubleValue config, String stat)
     {
-        Component message = Component.literal(String.format("The rate of mob %s scaling is currently %s", stat, config.get()));
+        Component message = Component.literal(String.format("The rate of mob %s scaling is currently %s", stat, formatDouble(config.get())));
         source.sendSystemMessage(message);
 
         return Command.SINGLE_SUCCESS;
@@ -245,7 +245,7 @@ public class ScalingMobsCommand extends BaseCommand
 
     static int getBaseConfig(CommandSourceStack source, ForgeConfigSpec.DoubleValue config, String stat)
     {
-        Component message = Component.literal(String.format("The base %s multiplier of all mobs is currently %s", stat, config.get()));
+        Component message = Component.literal(String.format("The base %s multiplier of all mobs is currently %s", stat, formatDouble(config.get())));
         source.sendSystemMessage(message);
 
         return Command.SINGLE_SUCCESS;
@@ -253,7 +253,7 @@ public class ScalingMobsCommand extends BaseCommand
 
     static int getMaxConfig(CommandSourceStack source, ForgeConfigSpec.DoubleValue config, String stat)
     {
-        Component message = Component.literal(String.format("The maximum %s scaling of all mobs is currently %s", stat, config.get()));
+        Component message = Component.literal(String.format("The maximum %s scaling of all mobs is currently %s", stat, formatDouble(config.get())));
         source.sendSystemMessage(message);
 
         return Command.SINGLE_SUCCESS;
@@ -280,7 +280,7 @@ public class ScalingMobsCommand extends BaseCommand
 
     static int getScale(CommandSourceStack source)
     {
-        double scale = LevelScalingData.get(source.getLevel()).scale();
+        String scale = formatDouble(LevelScalingData.get(source.getLevel()).scale());
         Component message = Component.literal("Mob scaling factor is currently " + scale);
         source.sendSystemMessage(message);
 
@@ -291,20 +291,24 @@ public class ScalingMobsCommand extends BaseCommand
     {
         int currentDay = (int) (source.getPlayer().level().getDayTime() / 24000L);
 
-        DecimalFormat df = new DecimalFormat("#.##");
-
         source.sendSystemMessage(Component.literal("Current damage scaling: " +
-                df.format(MonsterEvents.getMultipliedStat(100, ScalingMobsConfig.MOB_DAMAGE_BASE.get(), ScalingMobsConfig.MOB_DAMAGE_RATE.get(), ScalingMobsConfig.MOB_DAMAGE_MAX.get(), currentDay)) + "%"));
+                formatDouble(MonsterEvents.getMultipliedStat(100, ScalingMobsConfig.MOB_DAMAGE_BASE.get(), ScalingMobsConfig.MOB_DAMAGE_RATE.get(), ScalingMobsConfig.MOB_DAMAGE_MAX.get(), currentDay)) + "%"));
 
         source.sendSystemMessage(Component.literal("Current health scaling: " +
-                df.format(MonsterEvents.getMultipliedStat(100, ScalingMobsConfig.MOB_HEALTH_BASE.get(), ScalingMobsConfig.MOB_HEALTH_RATE.get(), ScalingMobsConfig.MOB_HEALTH_MAX.get(), currentDay)) + "%"));
+                formatDouble(MonsterEvents.getMultipliedStat(100, ScalingMobsConfig.MOB_HEALTH_BASE.get(), ScalingMobsConfig.MOB_HEALTH_RATE.get(), ScalingMobsConfig.MOB_HEALTH_MAX.get(), currentDay)) + "%"));
 
         source.sendSystemMessage(Component.literal("Current piercing scaling: " +
-                df.format(MonsterEvents.getMultipliedStat(100, ScalingMobsConfig.ARMOR_PIERCING_BASE.get(), ScalingMobsConfig.ARMOR_PIERCING_RATE.get(), ScalingMobsConfig.ARMOR_PIERCING_MAX.get(), currentDay)) + "%"));
+                formatDouble(MonsterEvents.getMultipliedStat(100, ScalingMobsConfig.ARMOR_PIERCING_BASE.get(), ScalingMobsConfig.ARMOR_PIERCING_RATE.get(), ScalingMobsConfig.ARMOR_PIERCING_MAX.get(), currentDay)) + "%"));
 
         source.sendSystemMessage(Component.literal("Current mob drop scaling: " +
-                df.format(MonsterEvents.getMultipliedStat(100, ScalingMobsConfig.MOB_DROPS_BASE.get(), ScalingMobsConfig.MOB_DROPS_RATE.get(), ScalingMobsConfig.MOB_DROPS_MAX.get(), currentDay)) + "%"));
+                formatDouble(MonsterEvents.getMultipliedStat(100, ScalingMobsConfig.MOB_DROPS_BASE.get(), ScalingMobsConfig.MOB_DROPS_RATE.get(), ScalingMobsConfig.MOB_DROPS_MAX.get(), currentDay)) + "%"));
 
         return Command.SINGLE_SUCCESS;
+    }
+
+    private static String formatDouble(double value)
+    {
+        DecimalFormat df = new DecimalFormat("#.##");
+        return df.format(value);
     }
 }
