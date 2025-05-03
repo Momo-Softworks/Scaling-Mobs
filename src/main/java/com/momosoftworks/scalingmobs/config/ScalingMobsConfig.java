@@ -48,7 +48,7 @@ public class ScalingMobsConfig
         BUILDER.push("Misc");
 
         SCALING_SPEED = BUILDER
-                .comment("The amount by which which mobs scale, per Minecraft day")
+                .comment("The amount by which mobs scale, per Minecraft day")
                 .defineInRange("Scaling Speed", 1, 0.0, Double.POSITIVE_INFINITY);
 
         EXPONENTIAL_SCALING = BUILDER
@@ -69,6 +69,7 @@ public class ScalingMobsConfig
                 .defineList("Mob Blacklist", List.of(),
                             element -> element instanceof String);
 
+        BUILDER.pop();
         BUILDER.push("Health");
 
         MOB_HEALTH_RATE = BUILDER
@@ -89,7 +90,7 @@ public class ScalingMobsConfig
                 .defineInRange("Damage Scale Rate", 0.03, 0.0, Double.POSITIVE_INFINITY);
         MOB_DAMAGE_BASE = BUILDER
                 .comment("The decimal amount of the mobs' base damage in the beginning")
-                .defineInRange("Mob Damage Base", 1.0, 0.0, Double.POSITIVE_INFINITY);
+                .defineInRange("Mob Damage Base", 0.0, 0.0, Double.POSITIVE_INFINITY);
         MOB_DAMAGE_MAX = BUILDER
                 .comment("The maximum amount that hostile mobs' damage can scale to")
                 .defineInRange("Max Scaled Damage", Double.POSITIVE_INFINITY, 0.0, Double.POSITIVE_INFINITY);
@@ -103,7 +104,7 @@ public class ScalingMobsConfig
 
         MOB_SPEED_BASE = BUILDER
                 .comment("The decimal amount of the mobs' base speed in the beginning")
-                .defineInRange("Mob Speed Base", 1.0, 0.0, Double.POSITIVE_INFINITY);
+                .defineInRange("Mob Speed Base", 0.0, 0.0, Double.POSITIVE_INFINITY);
 
         MOB_SPEED_MAX = BUILDER
                 .comment("The maximum amount that hostile mobs' speed can scale to")
@@ -117,7 +118,7 @@ public class ScalingMobsConfig
                 .defineInRange("Armor Piercing Scale Rate", 0.01, 0.0, Double.POSITIVE_INFINITY);
         ARMOR_PIERCING_BASE = BUILDER
                 .comment("The decimal amount of mobs' damage that ignores armor in the beginning")
-                .defineInRange("Armor Piercing Base", 0.1, 0.0, Double.POSITIVE_INFINITY);
+                .defineInRange("Armor Piercing Base", 0, 0.0, Double.POSITIVE_INFINITY);
         ARMOR_PIERCING_MAX = BUILDER
                 .comment("The maximum amount of increase to mobs' damage that ignores armor")
                 .defineInRange("Max Scaled Armor Piercing", 1.0, 0.0, Double.POSITIVE_INFINITY);
@@ -127,10 +128,10 @@ public class ScalingMobsConfig
 
         MOB_DROPS_RATE = BUILDER
                 .comment("The decimal amount of increase to mobs' drops per day")
-                .defineInRange("Mob Drops Scaling Rate", 0.02, 0.0, Double.POSITIVE_INFINITY);
+                .defineInRange("Mob Drops Scaling Rate", 0.05, 0.0, Double.POSITIVE_INFINITY);
         MOB_DROPS_BASE = BUILDER
                 .comment("The decimal amount of mobs' drops in the beginning")
-                .defineInRange("Mob Drops Base", 1.0, 0.0, Double.POSITIVE_INFINITY);
+                .defineInRange("Mob Drops Base", 0.0, 0.0, Double.POSITIVE_INFINITY);
         MOB_DROPS_MAX = BUILDER
                 .comment("The maximum amount of increase to mobs' drops")
                 .defineInRange("Max Scaled Mob Drops", 400, 0.0, Double.POSITIVE_INFINITY);
