@@ -32,7 +32,7 @@ public record MobModifier(List<Either<TagKey<EntityType<?>>, EntityType<?>>> ent
             ConfigHelper.tagOrHolderCodec(Registries.DIMENSION_TYPE, DimensionType.CODEC).listOf().optionalFieldOf("dimension_blacklist", List.of()).forGetter(MobModifier::dimensionBlacklist),
             Codec.INT.optionalFieldOf("distance_from_spawn", 0).forGetter(MobModifier::distanceFromSpawn),
             Codec.DOUBLE.optionalFieldOf("min_scale", 0d).forGetter(MobModifier::minScale),
-            Codec.DOUBLE.optionalFieldOf("max_scale", -1d).forGetter(MobModifier::maxScale),
+            Codec.DOUBLE.optionalFieldOf("max_scale", Double.MAX_VALUE).forGetter(MobModifier::maxScale),
             Codec.BOOL.optionalFieldOf("disable", false).forGetter(MobModifier::disable)
     ).apply(instance, MobModifier::new));
 
