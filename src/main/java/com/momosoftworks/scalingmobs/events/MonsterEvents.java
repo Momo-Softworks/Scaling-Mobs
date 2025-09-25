@@ -16,6 +16,7 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
+import net.minecraftforge.event.entity.living.LivingExperienceDropEvent;
 import net.minecraftforge.event.entity.living.LootingLevelEvent;
 import net.minecraftforge.event.entity.living.MobSpawnEvent;
 import net.minecraftforge.eventbus.api.Event;
@@ -115,6 +116,26 @@ public class MonsterEvents
             {   oldLooting = 1;
             }
             event.setLootingLevel(oldLooting * multiplier);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onMobDropXP(LivingExperienceDropEvent event)
+    {
+        LivingEntity entity = event.getEntity();
+        if (isScalingMob(entity) && entity.level() instanceof ServerLevel level)
+        {
+            double dropRate = ScalingMobsConfig.MOB_XP_RATE.get();
+            double dropBase = ScalingMobsConfig.MOB_XP_BASE.get();
+            double maxDrops = ScalingMobsConfig.MOB_XP_MAX.get();
+            double scale = LevelScalingData.get(level).scale();
+
+            int oldXP = event.getOriginalExperience();
+            int multiplier = Mth.floor(1 + Mth.clamp(dropRate * scale, dropBase, maxDrops));
+            if (oldXP == 0 && multiplier >= 2)
+            {   oldXP = 1;
+            }
+            event.setDroppedExperience(oldXP * multiplier);
         }
     }
 

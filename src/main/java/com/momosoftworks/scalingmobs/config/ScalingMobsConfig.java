@@ -37,6 +37,10 @@ public class ScalingMobsConfig
     public static final ForgeConfigSpec.DoubleValue MOB_DROPS_BASE;
     public static final ForgeConfigSpec.DoubleValue MOB_DROPS_MAX;
 
+    public static final ForgeConfigSpec.DoubleValue MOB_XP_RATE;
+    public static final ForgeConfigSpec.DoubleValue MOB_XP_BASE;
+    public static final ForgeConfigSpec.DoubleValue MOB_XP_MAX;
+
     public static final ForgeConfigSpec.IntValue STOP_BURNING_DAY;
 
     public static final ForgeConfigSpec.BooleanValue EXPONENTIAL_SCALING;
@@ -108,7 +112,7 @@ public class ScalingMobsConfig
 
         MOB_SPEED_MAX = BUILDER
                 .comment("The maximum amount that hostile mobs' speed can scale to")
-                .defineInRange("Max Scaled Speed", 1.5, 0.0, Double.POSITIVE_INFINITY);
+                .defineInRange("Max Scaled Speed", 1, 0.0, Double.POSITIVE_INFINITY);
 
         BUILDER.pop();
         BUILDER.push("Armor Piercing");
@@ -135,6 +139,16 @@ public class ScalingMobsConfig
         MOB_DROPS_MAX = BUILDER
                 .comment("The maximum amount of increase to mobs' drops")
                 .defineInRange("Max Scaled Mob Drops", 400, 0.0, Double.POSITIVE_INFINITY);
+
+        MOB_XP_RATE = BUILDER
+                .comment("The decimal amount of increase to mobs' XP drops per day")
+                .defineInRange("Mob XP Scaling Rate", 0.05, 0.0, Double.POSITIVE_INFINITY);
+        MOB_XP_BASE = BUILDER
+                .comment("The decimal amount of mobs' XP drops in the beginning")
+                .defineInRange("Mob XP Base", 0.0, 0.0, Double.POSITIVE_INFINITY);
+        MOB_XP_MAX = BUILDER
+                .comment("The maximum amount of increase to mobs' XP drops")
+                .defineInRange("Max Scaled Mob XP", 400, 0.0, Double.POSITIVE_INFINITY);
 
         BUILDER.pop();
 

@@ -129,6 +129,32 @@ public class ScalingMobsCommand extends BaseCommand
                                 )
                         )
                 )
+                .then(Commands.literal("xp")
+                        .then(Commands.literal("rate")
+                                .then(Commands.argument("amount", DoubleArgumentType.doubleArg(0.0, Double.MAX_VALUE)).requires(source -> source.hasPermission(2))
+                                        .executes(source -> setRateConfig(source.getSource(), ScalingMobsConfig.MOB_XP_RATE, "xp", DoubleArgumentType.getDouble(source, "amount")))
+                                )
+                                .then(Commands.literal("get")
+                                        .executes(source -> getRateConfig(source.getSource(), ScalingMobsConfig.MOB_XP_RATE, "xp"))
+                                )
+                        )
+                        .then(Commands.literal("base")
+                                .then(Commands.argument("amount", DoubleArgumentType.doubleArg(0.0, Double.MAX_VALUE)).requires(source -> source.hasPermission(2))
+                                        .executes(source -> setBaseConfig(source.getSource(), ScalingMobsConfig.MOB_XP_BASE, "xp", DoubleArgumentType.getDouble(source, "amount")))
+                                )
+                                .then(Commands.literal("get")
+                                        .executes(source -> getBaseConfig(source.getSource(), ScalingMobsConfig.MOB_XP_BASE, "xp"))
+                                )
+                        )
+                        .then(Commands.literal("max")
+                                .then(Commands.argument("amount", DoubleArgumentType.doubleArg(0.0, Double.MAX_VALUE)).requires(source -> source.hasPermission(2))
+                                        .executes(source -> setMaxConfig(source.getSource(), ScalingMobsConfig.MOB_XP_MAX, "xp", DoubleArgumentType.getDouble(source, "amount")))
+                                )
+                                .then(Commands.literal("get")
+                                        .executes(source -> getMaxConfig(source.getSource(), ScalingMobsConfig.MOB_XP_MAX, "xp"))
+                                )
+                        )
+                )
                 .then(Commands.literal("mode")
                         .then(Commands.literal("exponential").requires(source -> source.hasPermission(2))
                                 .executes(source -> setExponential(source.getSource(), true))
@@ -302,6 +328,9 @@ public class ScalingMobsCommand extends BaseCommand
 
         source.sendSystemMessage(Component.literal("Current mob drop scaling: " +
                 formatDouble(MonsterEvents.getMultipliedStat(100, ScalingMobsConfig.MOB_DROPS_BASE.get(), ScalingMobsConfig.MOB_DROPS_RATE.get(), ScalingMobsConfig.MOB_DROPS_MAX.get(), currentDay)) + "%"));
+
+        source.sendSystemMessage(Component.literal("Current mob experience scaling: " +
+                formatDouble(MonsterEvents.getMultipliedStat(100, ScalingMobsConfig.MOB_XP_BASE.get(), ScalingMobsConfig.MOB_XP_RATE.get(), ScalingMobsConfig.MOB_XP_MAX.get(), currentDay)) + "%"));
 
         return Command.SINGLE_SUCCESS;
     }
