@@ -24,7 +24,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'org.spongepowered.mixin'
 
 group = 'com.momosoftworks'
-version = '2.2.2'
+version = '2.4'
 
 java {
     archivesBaseName = 'ScalingMobs'
@@ -118,11 +118,18 @@ repositories {
         name = 'MinecraftForge'
         url = 'https://maven.minecraftforge.net/'
     }
+    maven {
+        url "https://cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
+    }
 }
 
 dependencies {
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
     minecraft 'net.minecraftforge:forge:1.20.1-47.3.22'
+    runtimeOnly fg.deobf("curse.maven:neat-238372:5838485")
 }
 
 mixin {

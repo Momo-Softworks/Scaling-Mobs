@@ -40,6 +40,7 @@ public class ScalingMobsConfig
     public static final ForgeConfigSpec.IntValue STOP_BURNING_DAY;
 
     public static final ForgeConfigSpec.BooleanValue EXPONENTIAL_SCALING;
+    public static final ForgeConfigSpec.BooleanValue PLAYER_COUNT_SCALING;
     public static final ForgeConfigSpec.ConfigValue<List<? extends String>> MOB_WHITELIST;
     public static final ForgeConfigSpec.ConfigValue<List<? extends String>> MOB_BLACKLIST;
 
@@ -54,6 +55,11 @@ public class ScalingMobsConfig
         EXPONENTIAL_SCALING = BUILDER
                 .comment("If true, mob stats will increase exponentially")
                 .define("Use Exponential Scaling", false);
+
+        PLAYER_COUNT_SCALING = BUILDER
+                .comment("If true, mob scaling speed will increase with more players in the world, up to 2x with 5 players",
+                         "Scaling will also cease if no players are on the server")
+                .define("Scale with Player Count", true);
 
         STOP_BURNING_DAY = BUILDER
                 .comment("After this day in the Minecraft world, all hostile mobs will be immune to burning in daylight")
