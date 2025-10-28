@@ -10,6 +10,7 @@ import com.momosoftworks.scalingmobs.config.ScalingMobsConfig;
 import com.momosoftworks.scalingmobs.data.ModRegistries;
 import com.momosoftworks.scalingmobs.data.config.MilestoneData;
 import com.momosoftworks.scalingmobs.data.save_data.LevelScalingData;
+import com.momosoftworks.scalingmobs.util.MathHelper;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
@@ -17,6 +18,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
@@ -50,7 +52,11 @@ public class LevelProgressManager
         {
             LevelScalingData scalingData = LevelScalingData.get(level);
             boolean exponential = ScalingMobsConfig.EXPONENTIAL_SCALING.get();
-            double rate = (ScalingMobsConfig.SCALING_SPEED.get() * 20) / 24000d;
+            int playerCount = level.getPlayers(p -> !p.isSpectator()).size();
+            double rate = getScalingSpeed();
+            if (ScalingMobsConfig.PLAYER_COUNT_SCALING.get())
+            {   rate *= MathHelper.blend(0, 2, playerCount, 0, 5);
+            }
             double newScale = exponential ? Math.pow(Math.pow(scalingData.scale(), 1/2d) + rate, 2d)
                                           : scalingData.scale() + rate;
             scalingData.setScale(newScale);
@@ -173,6 +179,10 @@ public class LevelProgressManager
                 }
             }
         }
+    }
+
+    public static double getScalingSpeed()
+    {   return (ScalingMobsConfig.SCALING_SPEED.get() * 20) / 24000d;
     }
 
     private static <T> Class<? super T> getBaseClass(T obj)

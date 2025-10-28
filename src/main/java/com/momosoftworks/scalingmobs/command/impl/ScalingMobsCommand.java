@@ -6,11 +6,15 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.momosoftworks.scalingmobs.command.BaseCommand;
 import com.momosoftworks.scalingmobs.config.ScalingMobsConfig;
+import com.momosoftworks.scalingmobs.data.ScalableStat;
 import com.momosoftworks.scalingmobs.data.save_data.LevelScalingData;
 import com.momosoftworks.scalingmobs.events.MonsterEvents;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 import java.text.DecimalFormat;
@@ -251,6 +255,12 @@ public class ScalingMobsCommand extends BaseCommand
     static int setScale(CommandSourceStack source, double scale)
     {
         LevelScalingData.get(source.getLevel()).setScale(scale);
+        for (Entity entity : source.getLevel().getAllEntities())
+        {
+            if (entity instanceof LivingEntity living && MonsterEvents.isScalingMob(entity))
+            {   MonsterEvents.initializeAttributeModifiers(living);
+            }
+        }
 
         Component message = Component.literal(String.format("Set mob scaling factor to %s", formatDouble(scale)));
         source.sendSuccess(() -> message, true);
@@ -315,19 +325,19 @@ public class ScalingMobsCommand extends BaseCommand
 
     static int getAll(CommandSourceStack source)
     {
-        int currentDay = (int) (source.getPlayer().level().getDayTime() / 24000L);
+        double scale = LevelScalingData.get(source.getLevel()).scale();
 
         source.sendSystemMessage(Component.literal("Current damage scaling: " +
-                formatDouble(MonsterEvents.getMultipliedStat(100, ScalingMobsConfig.MOB_DAMAGE_BASE.get(), ScalingMobsConfig.MOB_DAMAGE_RATE.get(), ScalingMobsConfig.MOB_DAMAGE_MAX.get(), currentDay)) + "%"));
+                formatDouble(100 + ScalableStat.DAMAGE.getMultiplier(scale) * 100) + "%"));
 
         source.sendSystemMessage(Component.literal("Current health scaling: " +
-                formatDouble(MonsterEvents.getMultipliedStat(100, ScalingMobsConfig.MOB_HEALTH_BASE.get(), ScalingMobsConfig.MOB_HEALTH_RATE.get(), ScalingMobsConfig.MOB_HEALTH_MAX.get(), currentDay)) + "%"));
+                formatDouble(100 + ScalableStat.HEALTH.getMultiplier(scale) * 100) + "%"));
 
         source.sendSystemMessage(Component.literal("Current piercing scaling: " +
-                formatDouble(MonsterEvents.getMultipliedStat(100, ScalingMobsConfig.ARMOR_PIERCING_BASE.get(), ScalingMobsConfig.ARMOR_PIERCING_RATE.get(), ScalingMobsConfig.ARMOR_PIERCING_MAX.get(), currentDay)) + "%"));
+                formatDouble(100 + ScalableStat.ARMOR_PIERCING.getMultiplier(scale) * 100) + "%"));
 
         source.sendSystemMessage(Component.literal("Current mob drop scaling: " +
-                formatDouble(MonsterEvents.getMultipliedStat(100, ScalingMobsConfig.MOB_DROPS_BASE.get(), ScalingMobsConfig.MOB_DROPS_RATE.get(), ScalingMobsConfig.MOB_DROPS_MAX.get(), currentDay)) + "%"));
+                formatDouble(100 + ScalableStat.DROPS.getMultiplier(scale) * 100) + "%"));
 
         source.sendSystemMessage(Component.literal("Current mob experience scaling: " +
                 formatDouble(MonsterEvents.getMultipliedStat(100, ScalingMobsConfig.MOB_XP_BASE.get(), ScalingMobsConfig.MOB_XP_RATE.get(), ScalingMobsConfig.MOB_XP_MAX.get(), currentDay)) + "%"));
