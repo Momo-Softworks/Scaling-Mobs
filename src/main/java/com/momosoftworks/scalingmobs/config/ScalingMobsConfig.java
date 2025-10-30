@@ -16,6 +16,7 @@ public class ScalingMobsConfig
     public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
 
     public static final ForgeConfigSpec.DoubleValue SCALING_SPEED;
+    public static final ForgeConfigSpec.DoubleValue PLAYER_SCALE_FAVOR;
 
     public static final ForgeConfigSpec.DoubleValue MOB_HEALTH_RATE;
     public static final ForgeConfigSpec.DoubleValue MOB_HEALTH_BASE;
@@ -55,6 +56,10 @@ public class ScalingMobsConfig
         SCALING_SPEED = BUILDER
                 .comment("The amount by which mobs scale, per Minecraft day")
                 .defineInRange("Scaling Speed", 1, 0.0, Double.POSITIVE_INFINITY);
+
+        PLAYER_SCALE_FAVOR = BUILDER
+                .comment("Players with lower scale will receive a higher boost to their stats")
+                .defineInRange("Player Scale Favor", 10, 0.0, Double.POSITIVE_INFINITY);
 
         EXPONENTIAL_SCALING = BUILDER
                 .comment("If true, mob stats will increase exponentially")

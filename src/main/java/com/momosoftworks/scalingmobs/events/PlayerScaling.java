@@ -39,7 +39,7 @@ public class PlayerScaling
             double scale = LevelScalingData.get(player.serverLevel()).scale();
             double scaleDifference = getScaleDifference(player);
             double multiplier = 1 + ScalableStat.HEALTH.getMultiplier(scale);
-            multiplier = MathHelper.blendLog(1, multiplier, scaleDifference, 0, scale, 10);
+            multiplier = MathHelper.blendLog(1, multiplier, scaleDifference, 0, scale, ScalingMobsConfig.PLAYER_SCALE_FAVOR.get());
 
             event.setAmount((float) (event.getAmount() * multiplier));
         }
@@ -53,7 +53,7 @@ public class PlayerScaling
             double scale = LevelScalingData.get(player.serverLevel()).scale();
             double scaleDifference = getScaleDifference(player);
             double multiplier = 1 + ScalableStat.DAMAGE.getMultiplier(scale);
-            multiplier = MathHelper.blendLog(1, multiplier, scaleDifference, 0, scale, 10);
+            multiplier = MathHelper.blendLog(1, multiplier, scaleDifference, 0, scale, ScalingMobsConfig.PLAYER_SCALE_FAVOR.get());
 
             event.setAmount((float) (event.getAmount() / multiplier));
         }
