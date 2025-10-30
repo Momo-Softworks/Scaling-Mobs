@@ -1,10 +1,12 @@
 package com.momosoftworks.scalingmobs.events;
 
 import com.momosoftworks.scalingmobs.config.ScalingMobsConfig;
+import com.momosoftworks.scalingmobs.data.ScalableStat;
 import com.momosoftworks.scalingmobs.data.save_data.LevelScalingData;
 import com.momosoftworks.scalingmobs.util.MathHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
@@ -36,11 +38,8 @@ public class PlayerScaling
         {
             double scale = LevelScalingData.get(player.serverLevel()).scale();
             double scaleDifference = getScaleDifference(player);
-            double healthBase = ScalingMobsConfig.MOB_HEALTH_BASE.get();
-            double healthRate = ScalingMobsConfig.MOB_HEALTH_RATE.get();
-            double healthMax = ScalingMobsConfig.MOB_HEALTH_MAX.get();
-            double multiplier = 1+Math.min(healthBase + healthRate * scale, healthMax);
-            multiplier = MathHelper.blend(1, multiplier, scaleDifference, 0, scale);
+            double multiplier = 1 + ScalableStat.HEALTH.getMultiplier(scale);
+            multiplier = MathHelper.blendLog(1, multiplier, scaleDifference, 0, scale, 10);
 
             event.setAmount((float) (event.getAmount() * multiplier));
         }
@@ -53,11 +52,8 @@ public class PlayerScaling
         {
             double scale = LevelScalingData.get(player.serverLevel()).scale();
             double scaleDifference = getScaleDifference(player);
-            double damageBase = ScalingMobsConfig.MOB_DAMAGE_BASE.get();
-            double damageRate = ScalingMobsConfig.MOB_DAMAGE_RATE.get();
-            double damageMax = ScalingMobsConfig.MOB_DAMAGE_MAX.get();
-            double multiplier = Math.min(damageBase + damageRate * scale, damageMax);
-            multiplier *= MathHelper.blend(1, 1.5, scaleDifference, 0, scale);
+            double multiplier = 1 + ScalableStat.DAMAGE.getMultiplier(scale);
+            multiplier = MathHelper.blendLog(1, multiplier, scaleDifference, 0, scale, 10);
 
             event.setAmount((float) (event.getAmount() / multiplier));
         }
