@@ -9,15 +9,18 @@ import com.momosoftworks.scalingmobs.config.ScalingMobsConfig;
 import com.momosoftworks.scalingmobs.data.ScalableStat;
 import com.momosoftworks.scalingmobs.data.save_data.LevelScalingData;
 import com.momosoftworks.scalingmobs.events.MonsterEvents;
+import com.momosoftworks.scalingmobs.events.PlayerScaling;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 import java.text.DecimalFormat;
+import java.util.Collection;
 
 public class ScalingMobsCommand extends BaseCommand
 {
@@ -181,10 +184,16 @@ public class ScalingMobsCommand extends BaseCommand
                 .then(Commands.literal("scale")
                         .then(Commands.literal("set")
                                 .then(Commands.argument("amount", DoubleArgumentType.doubleArg(0.0, Double.MAX_VALUE)).requires(source -> source.hasPermission(2))
+                                        .then(Commands.argument("entities", EntityArgument.entities())
+                                                .executes(source -> setScaleEntity(source.getSource(), EntityArgument.getEntities(source, "entities"), DoubleArgumentType.getDouble(source, "amount")))
+                                        )
                                         .executes(source -> setScale(source.getSource(), DoubleArgumentType.getDouble(source, "amount")))
                                 )
                         )
                         .then(Commands.literal("get")
+                                .then(Commands.argument("entities", EntityArgument.entities()).requires(source -> source.hasPermission(2))
+                                        .executes(source -> getScaleEntity(source.getSource(), EntityArgument.getEntities(source, "entities")))
+                                )
                                 .executes(source -> getScale(source.getSource()))
                         )
                 )
@@ -267,6 +276,25 @@ public class ScalingMobsCommand extends BaseCommand
 
         return Command.SINGLE_SUCCESS;
     }
+
+    static int setScaleEntity(CommandSourceStack source, Collection<? extends Entity> entities, double scale)
+    {
+        if (entities.stream().anyMatch(ent -> !(ent instanceof Player)))
+        {
+            source.sendFailure(Component.literal("Can only set scale for players"));
+            return 0;
+        }
+        for (Entity entity : entities)
+        {   PlayerScaling.setScale((Player) entity, scale);
+        }
+
+        Component message = entities.isEmpty() ? Component.literal("No entities selected")
+                          : entities.size() == 1 ? Component.literal(String.format("Set scale of %s to %s", entities.iterator().next().getDisplayName().getString(), formatDouble(scale)))
+                          : Component.literal(String.format("Set scale of %s players to %s", entities.size(), formatDouble(scale)));
+        source.sendSuccess(() -> message, true);
+
+        return Command.SINGLE_SUCCESS;
+    }
     
     /**
      * Get Commands
@@ -319,6 +347,23 @@ public class ScalingMobsCommand extends BaseCommand
         String scale = formatDouble(LevelScalingData.get(source.getLevel()).scale());
         Component message = Component.literal("Mob scaling factor is currently " + scale);
         source.sendSystemMessage(message);
+
+        return Command.SINGLE_SUCCESS;
+    }
+
+    static int getScaleEntity(CommandSourceStack source, Collection<? extends Entity> entities)
+    {
+        if (entities.stream().anyMatch(ent -> !(ent instanceof Player)))
+        {   source.sendFailure(Component.literal("Can only get scale for players"));
+            return 0;
+        }
+        for (Entity entity : entities)
+        {
+            double scale = PlayerScaling.getScale((Player) entity);
+            String formattedScale = formatDouble(scale);
+            Component message = Component.literal(String.format("%s has a scaling factor of %s", entity.getDisplayName().getString(), formattedScale));
+            source.sendSystemMessage(message);
+        }
 
         return Command.SINGLE_SUCCESS;
     }
