@@ -9,7 +9,8 @@ public enum ScalableStat
     HEALTH(ScalingMobsConfig.MOB_HEALTH_BASE, ScalingMobsConfig.MOB_HEALTH_RATE, ScalingMobsConfig.MOB_HEALTH_MAX),
     SPEED(ScalingMobsConfig.MOB_SPEED_BASE, ScalingMobsConfig.MOB_SPEED_RATE, ScalingMobsConfig.MOB_SPEED_MAX),
     ARMOR_PIERCING(ScalingMobsConfig.ARMOR_PIERCING_BASE, ScalingMobsConfig.ARMOR_PIERCING_RATE, ScalingMobsConfig.ARMOR_PIERCING_MAX),
-    DROPS(ScalingMobsConfig.MOB_DROPS_BASE, ScalingMobsConfig.MOB_DROPS_RATE, ScalingMobsConfig.MOB_DROPS_MAX);
+    DROPS(ScalingMobsConfig.MOB_DROPS_BASE, ScalingMobsConfig.MOB_DROPS_RATE, ScalingMobsConfig.MOB_DROPS_MAX),
+    EXPERIENCE(ScalingMobsConfig.MOB_XP_BASE, ScalingMobsConfig.MOB_XP_RATE, ScalingMobsConfig.MOB_XP_MAX);
 
     public final double base;
     public final double rate;

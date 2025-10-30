@@ -123,13 +123,10 @@ public class MonsterEvents
         LivingEntity entity = event.getEntity();
         if (isScalingMob(entity) && entity.level() instanceof ServerLevel level)
         {
-            double dropRate = ScalingMobsConfig.MOB_XP_RATE.get();
-            double dropBase = ScalingMobsConfig.MOB_XP_BASE.get();
-            double maxDrops = ScalingMobsConfig.MOB_XP_MAX.get();
             double scale = LevelScalingData.get(level).scale();
 
             int oldXP = event.getOriginalExperience();
-            int multiplier = Mth.floor(1 + Mth.clamp(dropRate * scale, dropBase, maxDrops));
+            int multiplier = Mth.floor(1 + ScalableStat.EXPERIENCE.getMultiplier(scale));
             if (oldXP == 0 && multiplier >= 2)
             {   oldXP = 1;
             }

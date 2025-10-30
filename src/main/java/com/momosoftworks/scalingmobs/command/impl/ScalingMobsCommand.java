@@ -340,7 +340,7 @@ public class ScalingMobsCommand extends BaseCommand
                 formatDouble(100 + ScalableStat.DROPS.getMultiplier(scale) * 100) + "%"));
 
         source.sendSystemMessage(Component.literal("Current mob experience scaling: " +
-                formatDouble(MonsterEvents.getMultipliedStat(100, ScalingMobsConfig.MOB_XP_BASE.get(), ScalingMobsConfig.MOB_XP_RATE.get(), ScalingMobsConfig.MOB_XP_MAX.get(), currentDay)) + "%"));
+                formatDouble(100 + ScalableStat.EXPERIENCE.getMultiplier(scale) * 100) + "%"));
 
         return Command.SINGLE_SUCCESS;
     }
