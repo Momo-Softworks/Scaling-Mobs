@@ -58,7 +58,8 @@ public class ScalingMobsConfig
                 .defineInRange("Scaling Speed", 1, 0.0, Double.POSITIVE_INFINITY);
 
         PLAYER_SCALE_FAVOR = BUILDER
-                .comment("Players with lower scale will receive a higher boost to their stats")
+                .comment("Players with lower scale will receive a higher boost to their stats",
+                         "Setting this to 0 disables the feature")
                 .defineInRange("Player Scale Favor", 10, 0.0, Double.POSITIVE_INFINITY);
 
         EXPONENTIAL_SCALING = BUILDER
