@@ -34,12 +34,14 @@ public class PlayerScaling
     @SubscribeEvent
     public static void scalePlayerDamage(LivingDamageEvent event)
     {
+        double scaleFavor = ScalingMobsConfig.PLAYER_SCALE_FAVOR.get();
+        if (scaleFavor == 0) return;
         if (event.getSource().getEntity() instanceof ServerPlayer player && MonsterEvents.isScalingMob(event.getEntity()))
         {
             double scale = LevelScalingData.get(player.serverLevel()).scale();
             double scaleDifference = getScaleDifference(player);
             double multiplier = 1 + ScalableStat.HEALTH.getMultiplier(scale);
-            multiplier = MathHelper.blendLog(1, multiplier, scaleDifference, 0, scale, ScalingMobsConfig.PLAYER_SCALE_FAVOR.get());
+            multiplier = MathHelper.blendLog(1, multiplier, scaleDifference, 0, scale, scaleFavor);
 
             event.setAmount((float) (event.getAmount() * multiplier));
         }
@@ -48,12 +50,14 @@ public class PlayerScaling
     @SubscribeEvent
     public static void scalePlayerResistance(LivingDamageEvent event)
     {
+        double scaleFavor = ScalingMobsConfig.PLAYER_SCALE_FAVOR.get();
+        if (scaleFavor == 0) return;
         if (event.getEntity() instanceof ServerPlayer player && MonsterEvents.isScalingMob(event.getEntity()))
         {
             double scale = LevelScalingData.get(player.serverLevel()).scale();
             double scaleDifference = getScaleDifference(player);
             double multiplier = 1 + ScalableStat.DAMAGE.getMultiplier(scale);
-            multiplier = MathHelper.blendLog(1, multiplier, scaleDifference, 0, scale, ScalingMobsConfig.PLAYER_SCALE_FAVOR.get());
+            multiplier = MathHelper.blendLog(1, multiplier, scaleDifference, 0, scale, scaleFavor);
 
             event.setAmount((float) (event.getAmount() / multiplier));
         }
