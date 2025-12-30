@@ -77,7 +77,7 @@ public record MobModifier(List<Either<TagKey<EntityType<?>>, EntityType<?>>> ent
         }
         if (entity.level() instanceof ServerLevel level)
         {
-            double scale = LevelScalingData.get(level).scale();
+            double scale = LevelScalingData.get(level.getServer()).scale();
             if (scale < this.minScale || scale > this.maxScale)
             {   return false;
             }

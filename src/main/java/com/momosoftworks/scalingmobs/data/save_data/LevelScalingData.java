@@ -7,7 +7,9 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 
 import java.util.HashSet;
@@ -18,8 +20,10 @@ public class LevelScalingData extends SavedData
     protected double scale = 0;
     protected Set<ResourceLocation> reachedMilestones = new HashSet<>();
 
-    public static LevelScalingData get(ServerLevel level)
-    {   return level.getDataStorage().computeIfAbsent(nbt -> load(level, nbt), LevelScalingData::new, "scaling_mobs:scale");
+    public static LevelScalingData get(MinecraftServer server)
+    {
+        ServerLevel overworld = server.overworld();
+        return overworld.getDataStorage().computeIfAbsent(nbt -> load(overworld, nbt), LevelScalingData::new, "scaling_mobs:scale");
     }
 
     public double scale()

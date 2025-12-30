@@ -263,7 +263,7 @@ public class ScalingMobsCommand extends BaseCommand
 
     static int setScale(CommandSourceStack source, double scale)
     {
-        LevelScalingData.get(source.getLevel()).setScale(scale);
+        LevelScalingData.get(source.getServer()).setScale(scale);
         for (Entity entity : source.getLevel().getAllEntities())
         {
             if (entity instanceof LivingEntity living && MonsterEvents.isScalingMob(entity))
@@ -344,7 +344,7 @@ public class ScalingMobsCommand extends BaseCommand
 
     static int getScale(CommandSourceStack source)
     {
-        String scale = formatDouble(LevelScalingData.get(source.getLevel()).scale());
+        String scale = formatDouble(LevelScalingData.get(source.getServer()).scale());
         Component message = Component.literal("Mob scaling factor is currently " + scale);
         source.sendSystemMessage(message);
 
@@ -370,7 +370,7 @@ public class ScalingMobsCommand extends BaseCommand
 
     static int getAll(CommandSourceStack source)
     {
-        double scale = LevelScalingData.get(source.getLevel()).scale();
+        double scale = LevelScalingData.get(source.getServer()).scale();
 
         source.sendSystemMessage(Component.literal("Current damage scaling: " +
                 formatDouble(100 + ScalableStat.DAMAGE.getMultiplier(scale) * 100) + "%"));

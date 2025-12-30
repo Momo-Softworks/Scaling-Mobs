@@ -15,6 +15,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
@@ -24,6 +25,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
@@ -36,6 +38,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.IForgeRegistry;
 
+import java.awt.*;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -48,11 +51,13 @@ public class LevelProgressManager
     @SubscribeEvent
     public static void increaseLevelScaling(TickEvent.LevelTickEvent event)
     {
-        if (event.level instanceof ServerLevel level && event.phase == TickEvent.Phase.START && level.getGameTime() % 20 == 0)
+        if (event.level instanceof ServerLevel serverLevel && event.level.dimensionTypeId() == BuiltinDimensionTypes.OVERWORLD
+        && event.phase == TickEvent.Phase.START && event.level.getGameTime() % 20 == 0)
         {
-            LevelScalingData scalingData = LevelScalingData.get(level);
+            MinecraftServer server = serverLevel.getServer();
+            LevelScalingData scalingData = LevelScalingData.get(server);
             boolean exponential = ScalingMobsConfig.EXPONENTIAL_SCALING.get();
-            int playerCount = level.getPlayers(p -> !p.isSpectator()).size();
+            int playerCount = server.getPlayerCount();
             double rate = getScalingSpeed();
             if (ScalingMobsConfig.PLAYER_COUNT_SCALING.get())
             {   rate *= MathHelper.blend(0, 2, playerCount, 0, 5);
@@ -149,8 +154,26 @@ public class LevelProgressManager
 
     private static <T> void applyTaggableHolderMilestone(ServerLevel level, Holder<T> value, Function<MilestoneData, List<Either<TagKey<T>, Holder<T>>>> getter)
     {
-        applyMilestoneInternal(level, getter, list -> list.stream().anyMatch(either -> either.map(tag -> value.is(tag),
-                                                                                                  holder -> holder.value().equals(value))), value);
+        if (value.unwrapKey().isEmpty()) return;
+        ResourceLocation id = value.unwrapKey().get().location();
+        applyMilestoneInternal(level, getter, list -> list.stream().anyMatch(either ->
+        {
+            return either.map(
+            tag ->
+            {
+                System.out.printf("Testing value %s against tag %s\n", value, tag);
+                boolean passed = value.is(tag);
+                System.out.println(passed ? "Test Passed" : "Test Failed");
+                return passed;
+            },
+            holder ->
+            {
+                System.out.printf("Testing if %s is equal to %s\n", holder.value(), value);
+                boolean passed = holder.value().equals(value.value());
+                System.out.println(passed ? "Test Passed" : "Test Failed");
+                return passed;
+            });
+        }), id);
     }
 
     private static <T> void applyMilestone(ServerLevel level, T value, Function<MilestoneData, List<T>> getter)
@@ -166,13 +189,13 @@ public class LevelProgressManager
         {   ScalingMobs.LOGGER.error("{} is not a valid objet type for milestones", value.getClass().getSimpleName());
             return;
         }
-        if (TESTED_OBJECTS.put(baseClass, value))
+        //if (TESTED_OBJECTS.put(baseClass, value))
         {
             for (Holder<MilestoneData> milestoneData : milestoneRegistry.holders().toList())
             {
                 if (listTester.test(getter.apply(milestoneData.value())))
                 {
-                    LevelScalingData scalingData = LevelScalingData.get(level);
+                    LevelScalingData scalingData = LevelScalingData.get(level.getServer());
                     if (scalingData.addMilestone(milestoneData))
                     {   scalingData.setScale(Math.max(scalingData.scale(), milestoneData.value().scale()));
                     }
