@@ -26,7 +26,7 @@ public class PlayerScaling
             double rate = LevelProgressManager.getScalingSpeed();
             double newScale = exponential ? Math.pow(Math.pow(scale, 1/2d) + rate, 2d)
                                           : scale + rate;
-            double levelScale = LevelScalingData.get(player.serverLevel()).scale();
+            double levelScale = LevelScalingData.get(player.getServer()).scale();
             setScale(player, Math.min(levelScale, newScale));
         }
     }
@@ -38,7 +38,7 @@ public class PlayerScaling
         if (scaleFavor == 0) return;
         if (event.getSource().getEntity() instanceof ServerPlayer player && MonsterEvents.isScalingMob(event.getEntity()))
         {
-            double scale = LevelScalingData.get(player.serverLevel()).scale();
+            double scale = LevelScalingData.get(player.getServer()).scale();
             double scaleDifference = getScaleDifference(player);
             double multiplier = 1 + ScalableStat.HEALTH.getMultiplier(scale);
             multiplier = MathHelper.blendLog(1, multiplier, scaleDifference, 0, scale, scaleFavor);
@@ -54,7 +54,7 @@ public class PlayerScaling
         if (scaleFavor == 0) return;
         if (event.getEntity() instanceof ServerPlayer player && MonsterEvents.isScalingMob(event.getEntity()))
         {
-            double scale = LevelScalingData.get(player.serverLevel()).scale();
+            double scale = LevelScalingData.get(player.getServer()).scale();
             double scaleDifference = getScaleDifference(player);
             double multiplier = 1 + ScalableStat.DAMAGE.getMultiplier(scale);
             multiplier = MathHelper.blendLog(1, multiplier, scaleDifference, 0, scale, scaleFavor);
@@ -78,6 +78,6 @@ public class PlayerScaling
     public static double getScaleDifference(ServerPlayer player)
     {
         double playerScaling = getScale(player);
-        return LevelScalingData.get(player.serverLevel()).scale() - playerScaling;
+        return LevelScalingData.get(player.getServer()).scale() - playerScaling;
     }
 }

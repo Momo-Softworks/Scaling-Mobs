@@ -46,7 +46,7 @@ public class MonsterEvents
     public static void initializeAttributeModifiers(LivingEntity entity)
     {
         if (!(entity.level() instanceof ServerLevel serverLevel)) return;
-        double scale = LevelScalingData.get(serverLevel).scale();
+        double scale = LevelScalingData.get(serverLevel.getServer()).scale();
 
         AttributeInstance damage = entity.getAttribute(Attributes.ATTACK_DAMAGE);
         if (damage != null)
@@ -88,7 +88,7 @@ public class MonsterEvents
         if (event.getEntity() instanceof Player player && player.level() instanceof ServerLevel level
         && event.getSource().getEntity() instanceof LivingEntity living && isScalingMob(living))
         {
-            double scale = LevelScalingData.get(level).scale();
+            double scale = LevelScalingData.get(level.getServer()).scale();
             float damage = event.getAmount();
 
             float armorPierceDamage = (float) ScalableStat.ARMOR_PIERCING.getMultiplier(scale) * damage;
@@ -120,7 +120,7 @@ public class MonsterEvents
         LivingEntity entity = event.getEntity();
         if (isScalingMob(entity) && entity.level() instanceof ServerLevel level)
         {
-            double scale = LevelScalingData.get(level).scale();
+            double scale = LevelScalingData.get(level.getServer()).scale();
 
             int oldLooting = event.getLootingLevel();
             int multiplier = Mth.floor(1 + ScalableStat.DROPS.getMultiplier(scale));
@@ -138,7 +138,7 @@ public class MonsterEvents
         LivingEntity entity = event.getEntity();
         if (isScalingMob(entity) && entity.level() instanceof ServerLevel level)
         {
-            double scale = LevelScalingData.get(level).scale();
+            double scale = LevelScalingData.get(level.getServer()).scale();
 
             int oldXP = event.getOriginalExperience();
             int multiplier = Mth.floor(1 + ScalableStat.EXPERIENCE.getMultiplier(scale));
