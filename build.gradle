@@ -24,7 +24,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'org.spongepowered.mixin'
 
 group = 'com.momosoftworks'
-version = '2.4.1'
+version = '2.4.2'
 
 java {
     archivesBaseName = 'ScalingMobs'

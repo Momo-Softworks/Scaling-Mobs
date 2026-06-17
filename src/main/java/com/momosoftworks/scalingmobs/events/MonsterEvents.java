@@ -17,15 +17,13 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.event.entity.living.LivingDamageEvent;
-import net.minecraftforge.event.entity.living.LivingExperienceDropEvent;
-import net.minecraftforge.event.entity.living.LootingLevelEvent;
-import net.minecraftforge.event.entity.living.MobSpawnEvent;
+import net.minecraftforge.event.entity.living.*;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -82,8 +80,10 @@ public class MonsterEvents
         }
     }
 
+    private static final Map<UUID, Float> PENDING_ARMOR_PIERCE = new HashMap<>();
+
     @SubscribeEvent
-    public static void onMobDealDamage(LivingDamageEvent event)
+    public static void handleArmorPiercing(LivingHurtEvent event)
     {
         if (event.getEntity() instanceof Player player && player.level() instanceof ServerLevel level
         && event.getSource().getEntity() instanceof LivingEntity living && isScalingMob(living))
@@ -94,8 +94,23 @@ public class MonsterEvents
             float armorPierceDamage = (float) ScalableStat.ARMOR_PIERCING.getMultiplier(scale) * damage;
             float normalDamage = damage - armorPierceDamage;
 
-            event.setAmount(normalDamage);
-            player.setHealth(player.getHealth() - armorPierceDamage);
+            event.setAmount(Math.max(normalDamage, 0.001f));
+            if (armorPierceDamage > 0)
+            {   PENDING_ARMOR_PIERCE.put(player.getUUID(), armorPierceDamage);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void applyArmorPiercing(LivingDamageEvent event)
+    {
+        if (event.getEntity() instanceof Player player)
+        {
+            Float pierceDamage = PENDING_ARMOR_PIERCE.remove(player.getUUID());
+            if (pierceDamage != null)
+            {
+                event.setAmount(event.getAmount() + pierceDamage);
+            }
         }
     }
 
